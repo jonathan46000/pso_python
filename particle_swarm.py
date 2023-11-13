@@ -82,15 +82,21 @@ class swarm:
             self.obj_func = obj_func
             self.iter = 0
             self.delta_t = np.linalg.norm(self.M)/T_MOD
+            self.current_particle = 0
+            self.number_of_particles = NO_OF_PARTICLES
+            self.allow_update = 0
+            self.Flist = []
+            self.Fvals = []
             
 
-    def  f_eval(self,particle):
-        
-        Fvals = self.obj_func(np.vstack(self.M[:,particle]))
-        Flist = abs(self.targets - Fvals)
-        self.iter = self.iter + 1
-
-        return Flist, Fvals   
+    def  call_objective(self,allow_update):
+        self.Fvals = self.obj_func(np.vstack(self.M[:,self.current_particle]))
+        if allow_update:
+            self.Flist = abs(self.targets - self.Fvals)
+            self.iter = self.iter + 1
+            self.allow_update = 1
+        else:
+            self.allow_update = 0  
     
     def update_velocity(self,particle):
 
@@ -146,17 +152,70 @@ class swarm:
         done = self.converged() or self.maxed()
         return done
     
-    def post_objective_point_update(self,Flist,particle):
-            self.check_global_local(Flist,particle)
-            self.update_velocity(particle)
-            self.update_point(particle)
-            self.cull_and_spawn(particle)
+    def step(self, suppress_output):
+        if self.allow_update:
+            self.check_global_local(self.Flist,self.current_particle)
+            self.update_velocity(self.current_particle)
+            self.update_point(self.current_particle)
+            self.cull_and_spawn(self.current_particle)
+            self.current_particle = self.current_particle + 1
+            if self.current_particle == self.number_of_particles:
+                self.current_particle = 0
+                self.update_delta_t()
+            if self.complete() and not suppress_output:
+                print("Points:")
+                print(self.Gb)
+                print("Iterations:")
+                print(self.iter)
+                print("Flist")
+                print(self.F_Gb)
 
-    def NON_ANCAT_GLOBAL_UPDATE(self):
-        for i in range(0,np.shape(self.M)[1]):
-            Flist, Fvals = self.f_eval(i)
-            self.post_objective_point_update(Flist,i)
-        self.update_delta_t()
+    def export_swarm(self):
+        swarm_export = {'lbound': self.lbound,
+                        'ubound': self.ubound,
+                        'M': self.M,
+                        'V': self.V,
+                        'Gb': self.Gb,
+                        'F_Gb': self.F_Gb,
+                        'Pb': self.Pb,
+                        'F_Pb': self.F_Pb,
+                        'weights': self.weights,
+                        'targets': self.targets,
+                        'T_MOD': self.T_MOD,
+                        'maxit': self.maxit,
+                        'E_TOL': self.E_TOL,
+                        'iter': self.iter,
+                        'delta_t': self.delta_t,
+                        'current_particle': self.current_particle,
+                        'number_of_particles': self.number_of_particles,
+                        'allow_update': self.allow_update,
+                        'Flist': self.Flist,
+                        'Fvals': self.Fvals}
+        
+        return swarm_export
+
+    def import_swarm(self, swarm_export, obj_func):
+        self.lbound = swarm_export['lbound'] 
+        self.ubound = swarm_export['ubound'] 
+        self.M = swarm_export['M'] 
+        self.V = swarm_export['V'] 
+        self.Gb = swarm_export['Gb'] 
+        self.F_Gb = swarm_export['F_Gb'] 
+        self.Pb = swarm_export['Pb'] 
+        self.F_Pb = swarm_export['F_Pb'] 
+        self.weights = swarm_export['weights'] 
+        self.targets = swarm_export['targets'] 
+        self.T_MOD = swarm_export['T_MOD'] 
+        self.maxit = swarm_export['maxit'] 
+        self.E_TOL = swarm_export['E_TOL'] 
+        self.iter = swarm_export['iter'] 
+        self.delta_t = swarm_export['delta_t'] 
+        self.current_particle = swarm_export['current_particle'] 
+        self.number_of_particles = swarm_export['number_of_particles'] 
+        self.allow_update = swarm_export['allow_update'] 
+        self.Flist = swarm_export['Flist'] 
+        self.Fvals = swarm_export['Fvals']
+        self.obj_func = obj_func 
 
         
 
