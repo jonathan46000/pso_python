@@ -167,8 +167,10 @@ class swarm:
                 print(self.Gb)
                 print("Iterations:")
                 print(self.iter)
-                print("Flist")
+                print("Flist:")
                 print(self.F_Gb)
+                print("Norm Flist:")
+                print(np.linalg.norm(self.F_Gb))
 
     def export_swarm(self):
         swarm_export = {'lbound': self.lbound,
