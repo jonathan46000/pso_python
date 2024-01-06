@@ -11,10 +11,13 @@ class swarm:
     # swarm(int, [[float, float, ...]], 
     # [[float, float, ...]], [[float, ...]], 
     # float, int, [[float, ...]], float, 
-    # float, int, func)
+    # float, int, int, func) 
+    # int boundary 1 = random,      2 = reflecting
+    #              3 = absorbing,   4 = invisible
     def __init__(self, NO_OF_PARTICLES, lbound, ubound,
                  weights, vlimit, output_size, targets,
-                 T_MOD, E_TOL, maxit, obj_func):  
+                 T_MOD, E_TOL, maxit, boundary, obj_func,
+                 constr_func):  
 
         heightl = np.shape(lbound)[0]
         widthl = np.shape(lbound)[1]
@@ -70,6 +73,7 @@ class swarm:
                                                                                1)), 
                                                                                vlimit))])
         
+            self.Active = np.ones((NO_OF_PARTICLES))
             self.Gb = sys.maxsize*np.ones((np.max([heightl, widthl]),1))
             self.F_Gb = sys.maxsize*np.ones((output_size,1))
             self.Pb = sys.maxsize*np.ones(np.shape(self.M))
@@ -80,51 +84,101 @@ class swarm:
             self.maxit = maxit
             self.E_TOL = E_TOL
             self.obj_func = obj_func
+            self.constr_func = constr_func
             self.iter = 0
-            self.delta_t = np.linalg.norm(self.M)/T_MOD
             self.current_particle = 0
             self.number_of_particles = NO_OF_PARTICLES
             self.allow_update = 0
+            self.boundary = boundary
             self.Flist = []
             self.Fvals = []
+            self.vlimit = vlimit
+            self.Mlast = 1*self.ubound
+            self.InitDeviation = self.absolute_mean_deviation_of_particles() 
+            self.delta_t = self.absolute_mean_deviation_of_particles()/(T_MOD*self.InitDeviation)
             
 
-    def  call_objective(self,allow_update):
-        self.Fvals = self.obj_func(np.vstack(self.M[:,self.current_particle]))
-        if allow_update:
-            self.Flist = abs(self.targets - self.Fvals)
-            self.iter = self.iter + 1
-            self.allow_update = 1
-        else:
-            self.allow_update = 0  
+    def call_objective(self, parent, allow_update):
+        if self.Active[self.current_particle]:
+            self.Fvals = self.obj_func(parent, np.vstack(self.M[:,self.current_particle]))
+            if allow_update:
+                self.Flist = abs(self.targets - self.Fvals)
+                self.iter = self.iter + 1
+                self.allow_update = 1
+            else:
+                self.allow_update = 0  
     
     def update_velocity(self,particle):
-
         for i in range(0,np.shape(self.V)[0]):
+            
             self.V[i,particle] = \
                 self.weights[0][0]* self.rng.random()*self.V[i,particle] \
                     + self.weights[0][1]* self.rng.random() \
                         * (self.Pb[i,particle]-self.M[i,particle]) \
                             + self.weights[0][2]* self.rng.random() \
                                 * (self.Gb[i]-self.M[i,particle])
-        
-        
-    def cull_and_spawn(self,particle):
-
+            
+    def check_bounds(self, particle):
         update = 0
         for i in range(0,(np.shape(self.M)[0])):
             if (self.lbound[i] > self.M[i,particle]) \
                or (self.ubound[i] < self.M[i,particle]):
-                update = 1
+                update = i+1
+        return update
 
-        if update:
-            variation = self.ubound-self.lbound
-            self.M[:,particle] = \
-                np.squeeze( self.rng.random() * 
-                           np.multiply(np.ones((np.shape(self.M)[0],1)),
-                                       variation) + self.lbound)
+    def random_bound(self, particle):
 
-    def check_global_local(self,Flist,particle):
+        update = self.check_bounds(particle) or not self.constr_func(self.M[:,particle])
+
+        if update > 0:
+            while not self.constr_func(self.M[:,particle]):
+                variation = self.ubound-self.lbound
+                self.M[:,particle] = \
+                    np.squeeze( self.rng.random() * 
+                                np.multiply(np.ones((np.shape(self.M)[0],1)),
+                                            variation) + self.lbound)
+            
+    def reflecting_bound(self, particle):
+        
+        update = self.check_bounds(particle)
+        constr = self.constr_func(self.M[:,particle])
+        if (update > 0) and constr:
+            self.M[:,particle] = 1*self.Mlast
+            NewV = np.multiply(-1,self.V[update-1,particle])
+            self.V[update-1,particle] = NewV
+        if not constr:
+            self.random_bound(particle)
+
+    def absorbing_bound(self, particle):
+        
+        update = self.check_bounds(particle)
+        constr = self.constr_func(self.M[:,particle])
+        if (update > 0) and constr:
+            self.M[:,particle] = 1*self.Mlast
+            self.V[update-1,particle] = 0
+        if not constr:
+            self.random_bound(particle)
+
+    def invisible_bound(self, particle):
+        
+        update = self.check_bounds(particle) or not self.constr_func(self.M[:,particle])
+
+        if update > 0:
+            self.Active[particle] = 0            
+
+    def handle_bounds(self, particle):
+        if self.boundary == 1:
+            self.random_bound(particle)
+        elif self.boundary == 2:
+            self.reflecting_bound(particle)
+        elif self.boundary == 3:
+            self.absorbing_bound(particle)
+        elif self.boundary == 4:
+            self.invisible_bound(particle)
+        else:
+            print("Error: No boundary is set!")
+
+    def check_global_local(self, Flist, particle):
 
         if np.linalg.norm(Flist) < np.linalg.norm(self.F_Gb):
             self.F_Gb = Flist
@@ -135,10 +189,11 @@ class swarm:
             self.Pb[:,particle] = self.M[:,particle]
     
     def update_point(self,particle):
+        self.Mlast = 1*self.M[:,particle]
         self.M[:,particle] = self.M[:,particle] + self.delta_t*self.V[:,particle]
 
     def update_delta_t(self):
-        self.delta_t = np.linalg.norm(self.M)/self.T_MOD
+        self.delta_t = self.absolute_mean_deviation_of_particles()/(self.T_MOD*self.InitDeviation)
 
     def converged(self):
         convergence = np.linalg.norm(self.F_Gb) < self.E_TOL
@@ -153,11 +208,27 @@ class swarm:
         return done
     
     def step(self, suppress_output):
+        if not suppress_output:
+            print("-----------------------------")
+            print("STEP")
+            print("-----------------------------")
+            print("Current Particle:")
+            print(self.current_particle)
+            print("Current Particle Velocity")
+            print(self.V[:,self.current_particle])
+            print("Current Particle Location")
+            print(self.M[:,self.current_particle])
+            print("Delta T")
+            print(self.delta_t)
+            print("Absolute mean deviation")
+            print(self.absolute_mean_deviation_of_particles())
+            print("-----------------------------")
         if self.allow_update:
-            self.check_global_local(self.Flist,self.current_particle)
-            self.update_velocity(self.current_particle)
-            self.update_point(self.current_particle)
-            self.cull_and_spawn(self.current_particle)
+            if self.Active[self.current_particle]:
+                self.check_global_local(self.Flist,self.current_particle)
+                self.update_velocity(self.current_particle)
+                self.update_point(self.current_particle)
+                self.handle_bounds(self.current_particle)
             self.current_particle = self.current_particle + 1
             if self.current_particle == self.number_of_particles:
                 self.current_particle = 0
@@ -192,7 +263,10 @@ class swarm:
                         'number_of_particles': self.number_of_particles,
                         'allow_update': self.allow_update,
                         'Flist': self.Flist,
-                        'Fvals': self.Fvals}
+                        'Fvals': self.Fvals,
+                        'Active': self.Active,
+                        'Boundary': self.boundary,
+                        'Mlast': self.Mlast}
         
         return swarm_export
 
@@ -217,8 +291,29 @@ class swarm:
         self.allow_update = swarm_export['allow_update'] 
         self.Flist = swarm_export['Flist'] 
         self.Fvals = swarm_export['Fvals']
+        self.Active = swarm_export['Active']
+        self.boundary = swarm_export['Boundary']
+        self.Mlast = swarm_export['Mlast']
         self.obj_func = obj_func 
 
+    def get_obj_inputs(self):
+        return np.vstack(self.M[:,self.current_particle])
+    
+    def get_convergence_data(self):
+        best_eval = np.linalg.norm(self.F_Gb)
+        iteration = 1*self.iter
+        return iteration, best_eval
         
-
-        
+    def get_optimized_soln(self):
+        return self.Gb 
+    
+    def get_optimized_outs(self):
+        return self.F_Gb
+    
+    def absolute_mean_deviation_of_particles(self):
+        mean_data = np.vstack(np.mean(self.M,axis=1))
+        abs_data = np.zeros(np.shape(self.M))
+        for i in range(0,self.number_of_particles):
+            abs_data[:,i] = np.squeeze(np.abs(np.vstack(self.M[:,i])-mean_data))
+        abs_mean_dev = np.linalg.norm(np.mean(abs_data,axis=1))
+        return abs_mean_dev
