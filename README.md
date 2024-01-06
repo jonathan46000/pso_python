@@ -1,2 +1,2 @@
 # pso_python
-Simple Particle Swarm Optimizer Written in Python
+Simple Adaptive Timestep Particle Swarm Optimizer Written in Python
