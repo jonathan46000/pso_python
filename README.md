@@ -69,7 +69,7 @@ pso_test_details.py provides an example using a parent class, and the self.suppr
 
 ### Realtime Graph
 
-<div style="text-align:center;">
+<div style="display: flex; justify-content: center;">
     <img src="https://github.com/LC-Linkous/pso_python/blob/main/media/pso_graph.gif" alt="Example PSO Convergence" height="150">
 </div>
 
