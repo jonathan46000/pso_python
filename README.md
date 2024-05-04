@@ -70,10 +70,9 @@ pso_test_details.py provides an example using a parent class, and the self.suppr
 ### Realtime Graph
 
 <p align="center">
-    <div style="display: flex; justify-content: center;">
         <img src="https://github.com/LC-Linkous/pso_python/blob/main/media/pso_graph.gif" alt="Example PSO Convergence" height="200">
-    </div>
 </p>
+
 pso_test_graph.py provides an example using a parent class, and the self.suppress_output and detailedWarnings flags to control error messages that are passed back to the parent class to be printed with a timestamp. Additionally, a realtime graph shows particle locations at every step.
 
 NOTE: if you close the graph as the code is running, the code will continue to run, but the graph will not re-open.
