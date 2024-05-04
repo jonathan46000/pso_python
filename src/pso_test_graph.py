@@ -114,7 +114,6 @@ class psoTestDetails():
 
     def run_PSO(self):
 
-        time.sleep(20)
         # instantiation of particle swarm optimizer 
         while not self.mySwarm.complete():
 
