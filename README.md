@@ -68,6 +68,11 @@ pso_test.py provides a sample use case of the optimizer.
 pso_test_details.py provides an example using a parent class, and the self.suppress_output and detailedWarnings flags to control error messages that are passed back to the parent class to be printed with a timestamp. This implementation sets up the hooks for integration with AntennaCAT in order to provide the user feedback of warnings and errors.
 
 ### Realtime Graph
+
+<div style="text-align:center;">
+    <img src="https://github.com/LC-Linkous/pso_python/blob/main/media/pso_graph.gif" alt="Example PSO Convergence" height="150">
+</div>
+
 pso_test_graph.py provides an example using a parent class, and the self.suppress_output and detailedWarnings flags to control error messages that are passed back to the parent class to be printed with a timestamp. Additionally, a realtime graph shows particle locations at every step.
 
 NOTE: if you close the graph as the code is running, the code will continue to run, but the graph will not re-open.
@@ -82,3 +87,5 @@ This software works as a stand-alone implementation, and as one of the optimizer
 Publications featuring the code in this repo will be added as they become public.
 
 ## Licensing
+
+The code in this repository has been released under GPL-2.0
