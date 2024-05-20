@@ -1,4 +1,4 @@
-# pso_python
+# pso_basic
 Simple adaptive timestep particle swarm optimizer written in Python. 
 Now featuring AntennaCAT hooks for GUI integration and user input handling
 
