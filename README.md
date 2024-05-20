@@ -63,6 +63,7 @@ The current internal optimization function takes 3 inputs, and has 2 outputs. It
 <p align="center">
         <img src="https://github.com/LC-Linkous/pso_python/blob/pso_basic/media/obj_func_pareto.png" alt="Function Feasable Decision Space and Objective Space with Pareto Front" height="200">
 </p>
+   <p align="center">Function Feasable Decision Space and Objective Space with Pareto Front</p>
 
 ```math
 \text{minimize}: 
