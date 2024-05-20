@@ -1,20 +1,21 @@
 #! /usr/bin/python3
 
 ##--------------------------------------------------------------------\
-#   pso_python
-#   './src/pso_python/constr_F.py'
+#   pso_basic
+#   './src/pso_basic/constr_F.py'
 #   Function for objective function constraints.
 #   Has 2 checks: 1 for the function limitations, 1 for float size
 #   Returns True if x array passes constraints check, False otherwise   
 #
 #   Author(s): Jonathan Lundquist, Lauren Linkous
-#   Last update: May 4, 2024
+#   Last update: May 20, 2024
 ##--------------------------------------------------------------------\
+
+import time
 
 
 def constr_F(x):
     F = True
-
     # objective function/problem constraints
     if (x[2] > x[0]/2) or (x[2] < 0.1):
         F = False
