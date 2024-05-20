@@ -1,14 +1,19 @@
 #! /usr/bin/python3
 
 ##--------------------------------------------------------------------\
-#   pso_python
-#   './src/pso_python/particle_swarm.py'
-#   Particle swarm class featuring an adaptive time step and mean
-#       distribution. This class has been modified from the original
+#   pso_basic
+#   './src/pso_basic/particle_swarm.py'
+#   Particle swarm class. This class has been modified from the original
 #       to include message passing for UI integration, and underflow 
 #       and overflow min/max caps to accomodate wider user input
 #       options in AntennaCAT.
 #       
+#       The self.delta_t variable that was the adaptive timestep has
+#       been left in to make it clear how little code was changed 
+#       between the two repo versions.
+#       
+#        self.delta_t is set constant to 1
+#
 #
 #   Author(s): Jonathan Lundquist, Lauren Linkous
 #   Last update: May 4, 2024
@@ -125,7 +130,7 @@ class swarm:
             self.vlimit = vlimit
             self.Mlast = 1*self.ubound
             self.InitDeviation = self.absolute_mean_deviation_of_particles() 
-            self.delta_t = self.absolute_mean_deviation_of_particles()/(T_MOD*self.InitDeviation)
+            self.delta_t = 1 # static time modulation. retaining structure for comparison to original repo.
 
             self.error_message_generator("swarm successfully initialized")
             
@@ -225,18 +230,20 @@ class swarm:
     def update_point(self,particle):
         self.Mlast = 1*self.M[:,particle]
 
+        
         # For some input values, self.delta_t causes buffer over- or underflows
         # Check if there is a risk, and use the max/min cap if needed
+        #self.delta_t = self.floating_point_error_handler("self.delta_t", self.delta_t)
 
-        self.delta_t = self.floating_point_error_handler("self.delta_t", self.delta_t)
         self.V[:,particle] = self.floating_point_error_handler("self.V[:,particle] ", self.V[:,particle] )
 
         
         self.M[:,particle] = self.M[:,particle] + self.delta_t*self.V[:,particle]
 
 
-    def update_delta_t(self):
-        self.delta_t = self.absolute_mean_deviation_of_particles()/(self.T_MOD*self.InitDeviation)
+    # The unused adaptive time step function. left in for easier comparison to the original repo.
+    # def update_delta_t(self):
+    #     self.delta_t = self.absolute_mean_deviation_of_particles()/(self.T_MOD*self.InitDeviation)
 
     def converged(self):
         convergence = np.linalg.norm(self.F_Gb) < self.E_TOL
@@ -253,7 +260,7 @@ class swarm:
     def step(self, suppress_output):
         if not suppress_output:
             msg = "\n-----------------------------\n" + \
-                "STEP\n" + \
+                "STEP #" + str(self.iter) +"\n" + \
                 "-----------------------------\n" + \
                 "Current Particle:\n" + \
                 str(self.current_particle) +"\n" + \
@@ -278,7 +285,7 @@ class swarm:
             self.current_particle = self.current_particle + 1
             if self.current_particle == self.number_of_particles:
                 self.current_particle = 0
-                self.update_delta_t()
+                # self.update_delta_t() # this version does not use the adaptive timestep
             if self.complete() and not suppress_output:
                 msg =  "\nPoints: \n" + str(self.Gb) + "\n" + \
                     "Iterations: \n" + str(self.iter) + "\n" + \
