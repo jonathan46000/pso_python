@@ -1,16 +1,15 @@
 #! /usr/bin/python3
 
 ##--------------------------------------------------------------------\
-#   pso_python
-#   './src/pso_python/func_F.py'
+#   pso_basic
+#   './src/pso_basic/func_F.py'
 #   Function for objective function evaluation.
 #   Has checks for floating point error, but these should never trigger
 #       if constraints have been properly applied.
 #
 #   Author(s): Lauren Linkous, Jonathan Lundquist
-#   Last update: May 4, 2024
+#   Last update: May 20, 2024
 ##--------------------------------------------------------------------\
-
 
 import numpy as np
 np.seterr(all='raise') # explicitly raise the FloatingPointError as an error
