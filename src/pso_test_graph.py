@@ -12,7 +12,7 @@
 #       matplotlib plot of particle location
 #
 #   Author(s): Lauren Linkous, Jonathan Lundquist
-#   Last update: May 4, 2024
+#   Last update: May 28, 2024
 ##--------------------------------------------------------------------\
 
 
@@ -20,8 +20,6 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 from particle_swarm import swarm
-from func_F import func_F
-from constr_F import constr_F
 import configs_F as func_configs
 
 
@@ -38,6 +36,9 @@ class psoTestDetails():
 
 
         # Objective function dependent variables
+        func_F = func_configs.OBJECTIVE_FUNC  # objective function
+        constr_F = func_configs.CONSTR_FUNC   # constraint function
+
         LB = func_configs.LB              # Lower boundaries, [[0.21, 0, 0.1]]
         UB = func_configs.UB              # Upper boundaries, [[1, 1, 0.5]]   
         WEIGHTS = [[0.7, 1.5, 0.5]]       # Update vector weights
@@ -80,6 +81,7 @@ class psoTestDetails():
 
 
         # Matplotlib setup
+        self.targets = TARGETS
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111, projection='3d')
         self.ax.set_xlabel('X')
@@ -103,13 +105,38 @@ class psoTestDetails():
         pass
          
 
-    def update_plot(self, coords):
-        if self.scatter is None:
-            self.scatter = self.ax.scatter(coords[0, :], coords[1, :], coords[2, :])
-        else:
-            self.scatter._offsets3d = (coords[0, :], coords[1, :], coords[2, :])
+    def update_plot(self, coords, targets, showTarget, clearAx=True, setLimts=False):
+        # if self.scatter is None:
+        if clearAx == True:
+            self.ax.clear() #use this to git rid of the 'ant tunnel' trails
+        if setLimts == True:
+            self.ax.set_xlim(-.5, 3)
+            self.ax.set_ylim(-.5, 3)
+            self.ax.set_zlim(-.5, 3)
+        
+        if np.shape(coords)[0] == 2: #2-dim obj func
+            self.ax.set_xlabel("$F_{1}(x,y)$")
+            self.ax.set_ylabel("$F_{2}(x,y)$")
+            self.scatter = self.ax.scatter(coords[0, :], coords[1, :])
 
-        plt.pause(0.001)  # Pause to update the plot
+        elif np.shape(coords)[0] == 3: #3-dim obj fun
+            self.ax.set_xlabel("$F_{1}(x,y)$")
+            self.ax.set_ylabel("$F_{2}(x,y)$")
+            self.ax.set_zlabel("$F_{3}(x,y)$")
+            self.scatter = self.ax.scatter(coords[0, :], coords[1, :], coords[2, :])
+
+        if showTarget == True: # plot the target point
+            if len(targets) == 1:
+                self.scatter = self.ax.scatter(targets[0], 0)
+            if len(targets) == 2:
+                self.scatter = self.ax.scatter(targets[0], targets[1])
+            elif len(targets) == 3:
+                self.scatter = self.ax.scatter(targets[0], targets[1], targets[2])
+
+
+        plt.pause(0.0001)  # Pause to update the plot
+
+
 
 
     def run_PSO(self):
@@ -134,8 +161,7 @@ class psoTestDetails():
                     print("Best Eval")
                     print(self.best_eval)
             coords = self.mySwarm.M  #get x,y,z coordinate locations
-            self.update_plot(coords) #update matplot
-
+            self.update_plot(coords, self.targets, showTarget=True) #update matplot
 
         print("Optimized Solution")
         print(self.mySwarm.get_optimized_soln())
