@@ -10,6 +10,7 @@
 #   Author(s): Lauren Linkous, Jonathan Lundquist
 #   Last update: May 20, 2024
 ##--------------------------------------------------------------------\
+
 import sys
 
 from func_F import func_F
@@ -17,8 +18,10 @@ from constr_F import constr_F
 
 OBJECTIVE_FUNC = func_F
 CONSTR_FUNC = constr_F
+
 OBJECTIVE_FUNC_NAME = "pso_basic.func_F"
 CONSTR_FUNC_NAME = "pso_basic.constr_F"
+
 
 # problem dependent variables
 LB = [[0.21, 0, 0.1]]       # Lower boundaries for input
