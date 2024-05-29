@@ -8,31 +8,19 @@
 #       if constraints have been properly applied.
 #
 #   Author(s): Lauren Linkous, Jonathan Lundquist
-#   Last update: May 4, 2024
+#   Last update: May 28, 2024
 ##--------------------------------------------------------------------\
 
-
 import numpy as np
-np.seterr(all='raise') # explicitly raise the FloatingPointError as an error
 
-
-def func_F(x):
-    NO_OF_OUTS = 2
+def func_F(X, NO_OF_OUTS=2):
     F = np.zeros((NO_OF_OUTS, 1))
-   
+    noErrors = True
     try:
-        F[0] = (x[0]-0.5) ** 2 + (x[1]-0.1) ** 2
-    except FloatingPointError as err:
-        print(err)
-        print("x[0] value in '(x[0]-0.5) ** 2 + (x[1]-0.1) ** 2' that caused error: " + str(x[0]))
-        print("x[1] value in '(x[0]-0.5) ** 2 + (x[1]-0.1) ** 2' that caused error: " + str(x[1]))
-        print(".........................................................................")
-
-    try:
-        F[1] = (x[2]-0.2) ** 4
-    except FloatingPointError as err:
-        print(err)
-        print("x[2] value in '(x[2]-0.2) ** 4' that caused error: " + str(x[2]))
-        print(".........................................................................")
+        F[0] = (X[0]-0.5) ** 2 + (X[1]-0.1) ** 2
+        F[1] = (X[2]-0.2) ** 4
         
-    return F
+    except:
+        noErrors = False
+    
+    return F, noErrors
