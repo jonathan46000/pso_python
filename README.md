@@ -61,42 +61,6 @@ The no preference method of multi-objective optimization, but a Pareto Front is 
 ### Objective Function Handling
 The optimizer minimizes the absolute value of the difference from the target outputs and the evaluated outputs.  Future versions may include options for function minimization absent target values. 
 
-#### Internal Objective Function Example
-The current internal optimization function takes 3 inputs, and has 2 outputs. It was created as a simple 3-variable optimization objective function that would be quick to converge.  
-<p align="center">
-        <img src="https://github.com/LC-Linkous/pso_python/blob/pso_basic/media/obj_func_pareto.png" alt="Function Feasable Decision Space and Objective Space with Pareto Front" height="200">
-</p>
-   <p align="center">Function Feasable Decision Space and Objective Space with Pareto Front</p>
-
-
-```math
-\text{minimize}: 
-\begin{cases}
-f_{1}(\mathbf{x}) = (x_1-0.5)^2 + (x_2-0.1)^2 \\
-f_{2}(\mathbf{x}) = (x_3-0.2)^4
-\end{cases}
-```
-
-| Num. Input Variables| Boundary | Constraints |
-|----------|----------|----------|
-| 3      | $0.21\leq x_1\leq 1$ <br> $0\leq x_2\leq 1$ <br> $0.1 \leq x_3\leq 0.5$  | $x_3\gt \frac{x_1}{2}$ or $x_3\lt 0.1$| 
-
-
-This function has three files:
-   1) configs_F.py - contains imports for the objective function and constraints, CONSTANT assignments for functions and labeling, boundary ranges, the number of input variables, the number of output values, and the target values for the output
-   2) constr_F.py - contains a function with the problem constraints, both for the function and for error handling in the case of under/overflow. 
-   3) func_F.py - contains a function with the objective function.
-
-Other multi-objective functions can be applied to this project by following the same format (and several have been collected into a compatable library, and will be realeased in a seperate repo)
-
-## Error Handling
-
-In the particle_swarm.py class, the objective function is called twice. Some optimizer/objective function/parameter combinations cause under/overflows when using numpy. It is a known bug in numpy that as of 5/2024 basic numpy cannot convert floats to longFloats or float128().
-
- * 1) When the constraints are called to verify if the particle is in bounds, and to apply the selected boundary method. At this point, the 'noErrors' boolean is used to confirm if the objection function resolves. If the objective function does not resolve, or the particle is out of bounds, the boundary conditions are applied.
- * 2) To evaluate the objective function as part of the traditional particle swarm algorithm
-
-
 ## Example Implementations
 
 ### Basic PSO Example
