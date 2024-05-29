@@ -32,7 +32,7 @@ if __name__ == "__main__":
     E_TOL = 10 ** -6             # Convergence Tolerance
     MAXIT = 5000                 # Maximum allowed iterations
     BOUNDARY = 1                 # int boundary 1 = random,      2 = reflecting
-                                #              3 = absorbing,   4 = invisible
+                                 #              3 = absorbing,   4 = invisible
 
     best_eval = 1
 
@@ -53,11 +53,18 @@ if __name__ == "__main__":
     while not mySwarm.complete():
 
         # step through optimizer processing
+        # update_velocity, will change the particle location
         mySwarm.step(suppress_output)
 
         # call the objective function, control 
         # when it is allowed to update and return 
         # control to optimizer
+
+        # for some objective functions, the function
+        # might not evaluate correctly (e.g., under/overflow)
+        # so when that happens, the function is not evaluated
+        # and the 'step' fucntion will re-gen values and try again
+
         mySwarm.call_objective(None, allow_update)
         iter, eval = mySwarm.get_convergence_data()
         if (eval < best_eval) and (eval != 0):
