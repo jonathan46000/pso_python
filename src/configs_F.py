@@ -11,14 +11,9 @@
 #   Last update: May 20, 2024
 ##--------------------------------------------------------------------\
 import sys
-try: # for outside func calls
-    sys.path.insert(0, './optimizers/pso_basic/')
-    from src.func_F import func_F
-    from src.constr_F import constr_F
-except: # for local
-    sys.path.insert(0, './src/optimizers/pso_basic/src')
-    from func_F import func_F
-    from constr_F import constr_F
+
+from func_F import func_F
+from constr_F import constr_F
 
 OBJECTIVE_FUNC = func_F
 CONSTR_FUNC = constr_F
