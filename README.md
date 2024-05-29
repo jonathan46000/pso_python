@@ -1,11 +1,12 @@
-# pso_python
-Simple adaptive timestep particle swarm optimizer written in Python. 
-Now featuring AntennaCAT hooks for GUI integration and user input handling
+# pso_basic
+
+Simple particle swarm optimizer written in Python. Modified from the [adaptive timestep PSO optimizer](https://github.com/jonathan46000/pso_python) by [jonathan46000](https://github.com/jonathan46000) for data collection baseline. This repo removes the adaptive time modulation step of pso_python.
+
+Now featuring AntennaCAT hooks for GUI integration and user input handling.
 
 ## Table of Contents
 * [Requirements](#requirements)
 * [Implementation](#implementation)
-    * [Time-step adaptation](#time-step-adaptation)
     * [Constraint Handling](#constraint-handling)
     * [Boundary Types](#boundary-types)
     * [Multi-Object Optimization](#multi-object-optimization)
@@ -44,8 +45,6 @@ zipp==3.18.1
 ```
 
 ## Implementation
-### Time-Step Adaptation 
-This particle swarm optimizers uses the mean absolute deviation of particle position as an adjustment to the time step, to prevent the particle overshoot problem.  This particle distribution is initialized to one when the swarm starts, so that the impact is boundary independent. 
 
 ### Constraint Handling
 Users must create their own constraint function for their problems, if there are constraints beyond the problem bounds.  This is then passed into the constructor. If the default constraint function is used, it always returns true (which means there are no constraints).

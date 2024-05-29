@@ -1,8 +1,8 @@
 #! /usr/bin/python3
 
 ##-------------------------------------------------------------------------------\
-#   pso_python
-#   './src/pso_python/src/pso_function_graph.py'
+#   pso_basic
+#   './pso_basic/src/pso_function_graph.py'
 #   generates graphs for function based on constraints and configurations
 #   in-package demo for graphing the pareto front
 #
@@ -123,3 +123,4 @@ plt.tight_layout()
 
 # Show plot
 plt.show()
+
