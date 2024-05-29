@@ -7,7 +7,7 @@
 #   in-package demo for graphing the pareto front
 #
 #   Author(s): Lauren Linkous (LINKOUSLC@vcu.edu)
-#   Last update: May 20, 2024
+#   Last update: May 28, 2024
 ##-------------------------------------------------------------------------------\
 
 import numpy as np
@@ -70,8 +70,9 @@ for c in x_grid:
         # add point to validCoords
         validCoords.append(c)
         # pass point to the function to get the minimized F set
-        objective_space = FUNC_F(c)
-        paretoCoords.append(objective_space)
+        objective_space, noErr = FUNC_F(c)
+        if noErr == True:
+            paretoCoords.append(objective_space)
 
 
 # Convert validCoords to a NumPy array
