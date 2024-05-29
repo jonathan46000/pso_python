@@ -10,16 +10,14 @@
 #       for integration in the AntennaCAT GUI.
 #
 #   Author(s): Lauren Linkous, Jonathan Lundquist
-#   Last update: May 4, 2024
+#   Last update: May 28, 2024
 ##--------------------------------------------------------------------\
 
 
 import numpy as np
 import time
 from particle_swarm import swarm
-from func_F import func_F
-from constr_F import constr_F
-import function_configs as func_configs
+import configs_F as func_configs
 
 
 
@@ -35,6 +33,9 @@ class psoTestDetails():
 
 
         # Objective function dependent variables
+        func_F = func_configs.OBJECTIVE_FUNC  # objective function
+        constr_F = func_configs.CONSTR_FUNC   # constraint function
+
         LB = func_configs.LB              # Lower boundaries, [[0.21, 0, 0.1]]
         UB = func_configs.UB              # Upper boundaries, [[1, 1, 0.5]]   
         WEIGHTS = [[0.7, 1.5, 0.5]]       # Update vector weights
