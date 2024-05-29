@@ -12,7 +12,8 @@ Now featuring AntennaCAT hooks for GUI integration and user input handling.
     * [Multi-Object Optimization](#multi-object-optimization)
     * [Objective Function Handling](#objective-function-handling)
       * [Internal Objective Function Example](internal-objective-function-example)
-* [Examples](#example-implementations)
+* [Error Handling](#error-handling)
+* [Example Implementations](#example-implementations)
     * [Basic PSO Example](#basic-pso-example)
     * [Detailed Messages](#detailed-messages)
     * [Realtime Graph](#realtime-graph)
@@ -65,6 +66,7 @@ The current internal optimization function takes 3 inputs, and has 2 outputs. It
 </p>
    <p align="center">Function Feasable Decision Space and Objective Space with Pareto Front</p>
 
+
 ```math
 \text{minimize}: 
 \begin{cases}
@@ -85,6 +87,12 @@ This function has three files:
 
 Other multi-objective functions can be applied to this project by following the same format (and several have been collected into a compatable library, and will be realeased in a seperate repo)
 
+## Error Handling
+
+In the particle_swarm.py class, the objective function is called twice. Some optimizer/objective function/parameter combinations cause under/overflows when using numpy. It is a known bug in numpy that as of 5/2024 basic numpy cannot convert floats to longFloats or float128().
+
+ * 1) When the constraints are called to verify if the particle is in bounds, and to apply the selected boundary method. At this point, the 'noErrors' boolean is used to confirm if the objection function resolves. If the objective function does not resolve, or the particle is out of bounds, the boundary conditions are applied.
+ * 2) To evaluate the objective function as part of the traditional particle swarm algorithm
 
 
 ## Example Implementations
