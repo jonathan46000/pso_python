@@ -7,11 +7,11 @@
 #       constraints for objective function or problem being optimized. 
 #
 #   Author(s): Jonathan Lundquist, Lauren Linkous
-#   Last update: May 4, 2024
+#   Last update: May 28, 2024
 ##--------------------------------------------------------------------\
 
 
 import numpy as np
 
-def constr_default(x):
+def constr_default(X):
     return True

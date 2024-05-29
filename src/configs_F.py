@@ -1,29 +1,26 @@
 #! /usr/bin/python3
 
 ##--------------------------------------------------------------------\
-#   pso_basic
-#   './pso_basic/src/configs_F.py'
+#   pso_python
+#   './src/pso_python/configs_F.py'
 #   Constant values for objective function. Formatted for
 #       automating objective function integration
 #
+#   This file is included for completeness
 #
 #   Author(s): Lauren Linkous, Jonathan Lundquist
-#   Last update: May 20, 2024
+#   Last update: May 15, 2024
 ##--------------------------------------------------------------------\
+
 import sys
-try: # for outside func calls
-    sys.path.insert(0, './optimizers/pso_basic/')
-    from src.func_F import func_F
-    from src.constr_F import constr_F
-except: # for local
-    sys.path.insert(0, './src/optimizers/pso_basic/src')
-    from func_F import func_F
-    from constr_F import constr_F
+
+from func_F import func_F
+from constr_F import constr_F
 
 OBJECTIVE_FUNC = func_F
 CONSTR_FUNC = constr_F
-OBJECTIVE_FUNC_NAME = "pso_basic.func_F"
-CONSTR_FUNC_NAME = "pso_basic.constr_F"
+OBJECTIVE_FUNC_NAME = "pso_python.func_F"
+CONSTR_FUNC_NAME = "pso_python.constr_F"
 
 # problem dependent variables
 LB = [[0.21, 0, 0.1]]       # Lower boundaries for input

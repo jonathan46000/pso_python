@@ -11,7 +11,7 @@
 #       
 #
 #   Author(s): Jonathan Lundquist, Lauren Linkous
-#   Last update: May 4, 2024
+#   Last update: May 28, 2024
 ##--------------------------------------------------------------------\
 
 
@@ -102,7 +102,35 @@ class swarm:
                                                                                1)), 
                                                                                vlimit))])
 
-
+            '''
+            self.M                      : An array of current particle locations.
+            self.V                      : An array of current particle velocities.
+            self.output_size            : An integer value for the output size of obj func
+            self.Active                 : An array indicating the activity status of each particle.
+            self.Gb                     : Global best position, initialized with a large value.
+            self.F_Gb                   : Fitness value corresponding to the global best position.
+            self.Pb                     : Personal best position for each particle.
+            self.F_Pb                   : Fitness value corresponding to the personal best position for each particle.
+            self.weights                : Weights for the optimization process.
+            self.targets                : Target values for the optimization process.
+            self.T_MOD                  : Time modulation parameter            
+            self.maxit                  : Maximum number of iterations.
+            self.E_TOL                  : Error tolerance.
+            self.obj_func               : Objective function to be optimized.      
+            self.constr_func            : Constraint function.  
+            self.iter                   : Current iteration count.
+            self.current_particle       : Index of the current particle being evaluated.
+            self.number_of_particles    : Total number of particles. 
+            self.allow_update           : Flag indicating whether to allow updates.
+            self.boundary               : Boundary conditions for the optimization problem.
+            self.Flist                  : List to store fitness values.
+            self.Fvals                  : List to store fitness values.
+            self.vlimit                 : Velocity limits for the particles.
+            self.Mlast                  : Last location of particle.
+            self.InitDeviation          : Initial deviation of particles.
+            self.delta_t                : Adaptive time modulation.
+            '''
+            self.output_size = output_size
             self.Active = np.ones((NO_OF_PARTICLES))
             self.Gb = sys.maxsize*np.ones((np.max([heightl, widthl]),1))
             self.F_Gb = sys.maxsize*np.ones((output_size,1))
@@ -132,17 +160,20 @@ class swarm:
 
     def call_objective(self, parent, allow_update):
         if self.Active[self.current_particle]:
-            self.Fvals = self.obj_func(np.vstack(self.M[:,self.current_particle]))
-            if allow_update:
-                self.Flist = abs(self.targets - self.Fvals)
-                self.iter = self.iter + 1
-                self.allow_update = 1
-            else:
-                self.allow_update = 0  
+            # call the objective function. If there's an issue with the function execution, 'noError' returns False
+            newFVals, noError = self.obj_func(np.vstack(self.M[:,self.current_particle]), self.output_size)
+            if noError == True:
+                self.Fvals = newFVals
+                if allow_update:
+                    self.Flist = abs(self.targets - self.Fvals)
+                    self.iter = self.iter + 1
+                    self.allow_update = 1
+                else:
+                    self.allow_update = 0
+            return noError# return is for error reporting purposes only 
     
     def update_velocity(self,particle):
-        for i in range(0,np.shape(self.V)[0]):
-            
+        for i in range(0,np.shape(self.V)[0]):            
             self.V[i,particle] = \
                 self.weights[0][0]* self.rng.random()*self.V[i,particle] \
                     + self.weights[0][1]* self.rng.random() \
@@ -158,22 +189,32 @@ class swarm:
                 update = i+1        
         return update
 
+    def validate_obj_function(self, particle):
+        # checks the the objective function resolves with the current particle.
+        # It is possible (and likely) that obj funcs without proper error handling
+        # will throw over/underflow errors.
+        # e.g.: numpy does not support float128()
+        newFVals, noError = self.obj_func(particle, self.output_size)
+        if noError == False:
+            #print("!!!!")
+            pass
+        return noError
+
     def random_bound(self, particle):
         # If particle is out of bounds, bring the particle back in bounds
         # The first condition checks if constraints are met, 
         # and the second determins if the values are to large (positive or negitive)
         # and may cause a buffer overflow with large exponents (a bug that was found experimentally)
-        update = self.check_bounds(particle) or not self.constr_func(self.M[:,particle])
+        update = self.check_bounds(particle) or not self.constr_func(self.M[:,particle]) or not self.validate_obj_function(np.vstack(self.M[:,self.current_particle]))
         if update > 0:
-            while (not self.constr_func(self.M[:,particle])): 
+            while (not self.constr_func(self.M[:,particle])) and (not self.validate_obj_function(self.M[:,particle])): 
                 variation = self.ubound-self.lbound
                 self.M[:,particle] = \
                     np.squeeze(self.rng.random() * 
                                 np.multiply(np.ones((np.shape(self.M)[0],1)),
                                             variation) + self.lbound)
-            
+               
     def reflecting_bound(self, particle):
-        
         update = self.check_bounds(particle)
         constr = self.constr_func(self.M[:,particle])
         if (update > 0) and constr:
@@ -194,11 +235,11 @@ class swarm:
             self.random_bound(particle)
 
     def invisible_bound(self, particle):
-        update = self.check_bounds(particle) or not self.constr_func(self.M[:,particle])
+        update = self.check_bounds(particle) or not self.constr_func(self.M[:,particle]) or not self.validate_obj_function(self.M[:,particle])
         if update > 0:
             self.Active[particle] = 0  
         else:
-            pass          
+            pass             
 
     def handle_bounds(self, particle):
         if self.boundary == 1:
@@ -227,10 +268,8 @@ class swarm:
 
         # For some input values, self.delta_t causes buffer over- or underflows
         # Check if there is a risk, and use the max/min cap if needed
-
         self.delta_t = self.floating_point_error_handler("self.delta_t", self.delta_t)
         self.V[:,particle] = self.floating_point_error_handler("self.V[:,particle] ", self.V[:,particle] )
-
         
         self.M[:,particle] = self.M[:,particle] + self.delta_t*self.V[:,particle]
 
@@ -345,7 +384,7 @@ class swarm:
         return np.vstack(self.M[:,self.current_particle])
     
     def get_convergence_data(self):
-        best_eval = np.linalg.norm(self.F_Gb)
+        best_eval = np.linalg.norm(self.F_Gb) #
         iteration = 1*self.iter
         return iteration, best_eval
         
