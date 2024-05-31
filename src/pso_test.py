@@ -80,4 +80,3 @@ if __name__ == "__main__":
     print(mySwarm.get_optimized_soln())
     print("Optimized Outputs")
     print(mySwarm.get_optimized_outs())
-
