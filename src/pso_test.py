@@ -58,7 +58,7 @@ if __name__ == "__main__":
         # call the objective function, control 
         # when it is allowed to update and return 
         # control to optimizer
-        mySwarm.call_objective(None, allow_update)
+        mySwarm.call_objective(allow_update)
         iter, eval = mySwarm.get_convergence_data()
         if (eval < best_eval) and (eval != 0):
             best_eval = eval
