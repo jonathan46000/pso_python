@@ -1,8 +1,8 @@
 #! /usr/bin/python3
 
 ##--------------------------------------------------------------------\
-#   pso_python
-#   './src/pso_python/pso_test_details.py'
+#   pso_basic
+#   './pso_basic/src/pso_test_details.py'
 #   Test function/example for using the 'swarm' class in particle_swarm.py.
 #       This has been modified from the original to include message 
 #       passing back to the parent class or testbench, rather than printing

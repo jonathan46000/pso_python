@@ -1,14 +1,19 @@
 #! /usr/bin/python3
 
 ##--------------------------------------------------------------------\
-#   pso_python
-#   './src/pso_python/particle_swarm.py'
-#   Particle swarm class featuring an adaptive time step and mean
-#       distribution. This class has been modified from the original
+#   pso_basic
+#   './pso_basic/src/particle_swarm.py'
+#   Particle swarm class. This class has been modified from the original
 #       to include message passing for UI integration, and underflow 
 #       and overflow min/max caps to accomodate wider user input
 #       options in AntennaCAT.
 #       
+#       The self.delta_t variable that was the adaptive timestep has
+#       been left in to make it clear how little code was changed 
+#       between the two repo versions and to retain the export format
+#       
+#        self.delta_t is set constant to 1
+#
 #
 #   Author(s): Jonathan Lundquist, Lauren Linkous
 #   Last update: May 28, 2024
@@ -101,7 +106,6 @@ class swarm:
                                                                                widthl]),
                                                                                1)), 
                                                                                vlimit))])
-
             '''
             self.M                      : An array of current particle locations.
             self.V                      : An array of current particle velocities.
@@ -126,34 +130,34 @@ class swarm:
             self.Flist                  : List to store fitness values.
             self.Fvals                  : List to store fitness values.
             self.vlimit                 : Velocity limits for the particles.
-            self.Mlast                  : Last location of particle.
+            self.Mlast                  : Last location of particle
             self.InitDeviation          : Initial deviation of particles.
-            self.delta_t                : Adaptive time modulation.
+            self.delta_t                : static time modulation. retained for comparison to original repo. and swarm export
             '''
             self.output_size = output_size
-            self.Active = np.ones((NO_OF_PARTICLES))
-            self.Gb = sys.maxsize*np.ones((np.max([heightl, widthl]),1))
-            self.F_Gb = sys.maxsize*np.ones((output_size,1))
-            self.Pb = sys.maxsize*np.ones(np.shape(self.M))
-            self.F_Pb = sys.maxsize*np.ones((output_size,NO_OF_PARTICLES))
-            self.weights = np.vstack(np.array(weights))
-            self.targets = np.vstack(np.array(targets))
-            self.T_MOD = T_MOD
-            self.maxit = maxit
-            self.E_TOL = E_TOL
-            self.obj_func = obj_func
-            self.constr_func = constr_func
-            self.iter = 0
-            self.current_particle = 0
-            self.number_of_particles = NO_OF_PARTICLES
-            self.allow_update = 0
-            self.boundary = boundary
-            self.Flist = []
-            self.Fvals = []
-            self.vlimit = vlimit
-            self.Mlast = 1*self.ubound
-            self.InitDeviation = self.absolute_mean_deviation_of_particles() 
-            self.delta_t = self.absolute_mean_deviation_of_particles()/(T_MOD*self.InitDeviation)
+            self.Active = np.ones((NO_OF_PARTICLES))                        
+            self.Gb = sys.maxsize*np.ones((np.max([heightl, widthl]),1))   
+            self.F_Gb = sys.maxsize*np.ones((output_size,1))                
+            self.Pb = sys.maxsize*np.ones(np.shape(self.M))                 
+            self.F_Pb = sys.maxsize*np.ones((output_size,NO_OF_PARTICLES))  
+            self.weights = np.vstack(np.array(weights))                     
+            self.targets = np.vstack(np.array(targets))                     
+            self.T_MOD = T_MOD                                                        
+            self.maxit = maxit                                             
+            self.E_TOL = E_TOL                                              
+            self.obj_func = obj_func                                             
+            self.constr_func = constr_func                                   
+            self.iter = 0                                                   
+            self.current_particle = 0                                       
+            self.number_of_particles = NO_OF_PARTICLES                      
+            self.allow_update = 0                                           
+            self.boundary = boundary                                       
+            self.Flist = []                                                 
+            self.Fvals = []                                                 
+            self.vlimit = vlimit                                            
+            self.Mlast = 1*self.ubound                                      
+            self.InitDeviation = self.absolute_mean_deviation_of_particles()
+            self.delta_t = 1   # keep for swarm export format                                             
 
             self.error_message_generator("swarm successfully initialized")
             
@@ -170,7 +174,7 @@ class swarm:
                     self.allow_update = 1
                 else:
                     self.allow_update = 0
-            return noError# return is for error reporting purposes only 
+            return noError# return is for error reporting purposes only
     
     def update_velocity(self,particle):
         for i in range(0,np.shape(self.V)[0]):            
@@ -213,8 +217,8 @@ class swarm:
                     np.squeeze(self.rng.random() * 
                                 np.multiply(np.ones((np.shape(self.M)[0],1)),
                                             variation) + self.lbound)
-               
-    def reflecting_bound(self, particle):
+            
+    def reflecting_bound(self, particle):        
         update = self.check_bounds(particle)
         constr = self.constr_func(self.M[:,particle])
         if (update > 0) and constr:
@@ -225,7 +229,6 @@ class swarm:
             self.random_bound(particle)
 
     def absorbing_bound(self, particle):
-        
         update = self.check_bounds(particle)
         constr = self.constr_func(self.M[:,particle])
         if (update > 0) and constr:
@@ -239,7 +242,7 @@ class swarm:
         if update > 0:
             self.Active[particle] = 0  
         else:
-            pass             
+            pass          
 
     def handle_bounds(self, particle):
         if self.boundary == 1:
@@ -265,17 +268,8 @@ class swarm:
     
     def update_point(self,particle):
         self.Mlast = 1*self.M[:,particle]
-
-        # For some input values, self.delta_t causes buffer over- or underflows
-        # Check if there is a risk, and use the max/min cap if needed
-        self.delta_t = self.floating_point_error_handler("self.delta_t", self.delta_t)
-        self.V[:,particle] = self.floating_point_error_handler("self.V[:,particle] ", self.V[:,particle] )
-        
+        self.V[:,particle] = self.floating_point_error_handler("self.V[:,particle] ", self.V[:,particle] )        
         self.M[:,particle] = self.M[:,particle] + self.delta_t*self.V[:,particle]
-
-
-    def update_delta_t(self):
-        self.delta_t = self.absolute_mean_deviation_of_particles()/(self.T_MOD*self.InitDeviation)
 
     def converged(self):
         convergence = np.linalg.norm(self.F_Gb) < self.E_TOL
@@ -292,7 +286,7 @@ class swarm:
     def step(self, suppress_output):
         if not suppress_output:
             msg = "\n-----------------------------\n" + \
-                "STEP\n" + \
+                "STEP #" + str(self.iter) +"\n" + \
                 "-----------------------------\n" + \
                 "Current Particle:\n" + \
                 str(self.current_particle) +"\n" + \
@@ -317,7 +311,6 @@ class swarm:
             self.current_particle = self.current_particle + 1
             if self.current_particle == self.number_of_particles:
                 self.current_particle = 0
-                self.update_delta_t()
             if self.complete() and not suppress_output:
                 msg =  "\nPoints: \n" + str(self.Gb) + "\n" + \
                     "Iterations: \n" + str(self.iter) + "\n" + \
@@ -384,7 +377,7 @@ class swarm:
         return np.vstack(self.M[:,self.current_particle])
     
     def get_convergence_data(self):
-        best_eval = np.linalg.norm(self.F_Gb) #
+        best_eval = np.linalg.norm(self.F_Gb)
         iteration = 1*self.iter
         return iteration, best_eval
         

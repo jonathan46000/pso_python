@@ -1,8 +1,8 @@
 #! /usr/bin/python3
 
 ##--------------------------------------------------------------------\
-#   pso_python
-#   './src/pso_python/pso_test_graph.py'
+#   pso_basic
+#   './pso_basic/src/pso_test_graph.py'
 #   Test function/example for using the 'swarm' class in particle_swarm.py.
 #       This has been modified from the original to include message 
 #       passing back to the parent class or testbench, rather than printing
@@ -11,7 +11,7 @@
 #       This version builds from 'pso_test_details.py' to include a 
 #       matplotlib plot of particle location
 #
-#   Author(s): Lauren Linkous, Jonathan Lundquist,
+#   Author(s): Lauren Linkous, Jonathan Lundquist
 #   Last update: May 28, 2024
 ##--------------------------------------------------------------------\
 
@@ -21,6 +21,7 @@ import time
 import matplotlib.pyplot as plt
 from particle_swarm import swarm
 import configs_F as func_configs
+
 
 
 class psoTestDetails():
