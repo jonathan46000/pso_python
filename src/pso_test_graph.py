@@ -149,7 +149,7 @@ class psoTestDetails():
             # call the objective function, control 
             # when it is allowed to update and return 
             # control to optimizer
-            self.mySwarm.call_objective(None, self.allow_update)
+            self.mySwarm.call_objective(self.allow_update)
             iter, eval = self.mySwarm.get_convergence_data()
             if (eval < self.best_eval) and (eval != 0):
                 self.best_eval = eval
