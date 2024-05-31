@@ -162,7 +162,7 @@ class swarm:
             self.error_message_generator("swarm successfully initialized")
             
 
-    def call_objective(self, parent, allow_update):
+    def call_objective(self, allow_update):
         if self.Active[self.current_particle]:
             # call the objective function. If there's an issue with the function execution, 'noError' returns False
             newFVals, noError = self.obj_func(np.vstack(self.M[:,self.current_particle]), self.output_size)

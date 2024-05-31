@@ -65,7 +65,7 @@ if __name__ == "__main__":
         # so when that happens, the function is not evaluated
         # and the 'step' fucntion will re-gen values and try again
 
-        mySwarm.call_objective(None, allow_update)
+        mySwarm.call_objective(allow_update)
         iter, eval = mySwarm.get_convergence_data()
         if (eval < best_eval) and (eval != 0):
             best_eval = eval
