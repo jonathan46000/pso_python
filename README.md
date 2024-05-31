@@ -45,6 +45,7 @@ zipp==3.18.1
 ```
 
 ## Implementation
+
 ### Constraint Handling
 Users must create their own constraint function for their problems, if there are constraints beyond the problem bounds.  This is then passed into the constructor. If the default constraint function is used, it always returns true (which means there are no constraints).
 
