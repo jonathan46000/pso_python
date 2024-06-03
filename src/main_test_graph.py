@@ -24,7 +24,7 @@ import configs_F as func_configs
 
 
 
-class psoTestDetails():
+class TestGraph():
     def __init__(self):
         # Constant variables
         NO_OF_PARTICLES = 50         # Number of particles in swarm
@@ -170,7 +170,7 @@ class psoTestDetails():
 
 
 
-    def run_PSO(self):
+    def run(self):
 
         # instantiation of particle swarm optimizer 
         while not self.mySwarm.complete():
@@ -202,5 +202,5 @@ class psoTestDetails():
 
 
 if __name__ == "__main__":
-    pso = psoTestDetails()
-    pso.run_PSO()
+    pso = TestGraph()
+    pso.run()
