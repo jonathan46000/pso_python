@@ -2,7 +2,7 @@
 
 ##--------------------------------------------------------------------\
 #   pso_python
-#   './src/pso_python/pso_test_details.py'
+#   './pso_python/src/main_test_details.py'
 #   Test function/example for using the 'swarm' class in particle_swarm.py.
 #       This has been modified from the original to include message 
 #       passing back to the parent class or testbench, rather than printing
@@ -10,7 +10,7 @@
 #       for integration in the AntennaCAT GUI.
 #
 #   Author(s): Lauren Linkous, Jonathan Lundquist
-#   Last update: May 28, 2024
+#   Last update: June 3, 2024
 ##--------------------------------------------------------------------\
 
 
@@ -21,7 +21,7 @@ import configs_F as func_configs
 
 
 
-class psoTestDetails():
+class TestDetails():
     def __init__(self):
         # Constant variables
         NO_OF_PARTICLES = 50         # Number of particles in swarm
@@ -93,7 +93,7 @@ class psoTestDetails():
         pass
          
 
-    def run_PSO(self):
+    def run(self):
 
         # instantiation of particle swarm optimizer 
         while not self.mySwarm.complete():
@@ -123,5 +123,5 @@ class psoTestDetails():
 
 
 if __name__ == "__main__":
-    pso = psoTestDetails()
-    pso.run_PSO()
+    pso = TestDetails()
+    pso.run()

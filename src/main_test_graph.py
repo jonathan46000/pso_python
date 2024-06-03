@@ -2,7 +2,7 @@
 
 ##--------------------------------------------------------------------\
 #   pso_python
-#   './src/pso_python/pso_test_graph.py'
+#   './pso_python/src/main_test_graph.py'
 #   Test function/example for using the 'swarm' class in particle_swarm.py.
 #       This has been modified from the original to include message 
 #       passing back to the parent class or testbench, rather than printing
@@ -12,7 +12,7 @@
 #       matplotlib plot of particle location
 #
 #   Author(s): Lauren Linkous, Jonathan Lundquist,
-#   Last update: May 28, 2024
+#   Last update: June 3, 2024
 ##--------------------------------------------------------------------\
 
 
@@ -23,7 +23,7 @@ from particle_swarm import swarm
 import configs_F as func_configs
 
 
-class psoTestDetails():
+class TestGraph():
     def __init__(self):
         # Constant variables
         NO_OF_PARTICLES = 50         # Number of particles in swarm
@@ -81,13 +81,21 @@ class psoTestDetails():
 
         # Matplotlib setup
         self.targets = TARGETS
-        self.fig = plt.figure()
-        self.ax = self.fig.add_subplot(111, projection='3d')
-        self.ax.set_xlabel('X')
-        self.ax.set_ylabel('Y')
-        self.ax.set_zlabel('Z')
-        self.scatter = None
-
+        self.fig = plt.figure(figsize=(14, 7))
+        # position
+        self.ax1 = self.fig.add_subplot(121, projection='3d')
+        self.ax1.set_title("Particle Location")
+        self.ax1.set_xlabel('X')
+        self.ax1.set_ylabel('Y')
+        self.ax1.set_zlabel('Z')
+        self.scatter1 = None
+        # fitness
+        self.ax2 = self.fig.add_subplot(122, projection='3d')
+        self.ax2.set_title("Fitness Relation to Target")
+        self.ax2.set_xlabel('X')
+        self.ax2.set_ylabel('Y')
+        self.ax2.set_zlabel('Z')
+        self.scatter2 = None
 
     def debug_message_printout(self, txt):
         if txt is None:
@@ -104,41 +112,64 @@ class psoTestDetails():
         pass
          
 
-    def update_plot(self, coords, targets, showTarget, clearAx=True, setLimts=False):
+    def update_plot(self, m_coords, f_coords, targets, showTarget, clearAx=True, setLimts=False):
         # if self.scatter is None:
         if clearAx == True:
-            self.ax.clear() #use this to git rid of the 'ant tunnel' trails
+            self.ax1.clear() #use this to git rid of the 'ant tunnel' trails
+            self.ax2.clear()
         if setLimts == True:
-            self.ax.set_xlim(-.5, 3)
-            self.ax.set_ylim(-.5, 3)
-            self.ax.set_zlim(-.5, 3)
+            self.ax1.set_xlim(-5, 5)
+            self.ax1.set_ylim(-5, 5)
+            self.ax1.set_zlim(-5, 5)
+            
+            self.ax2.set_xlim(-5, 5)
+            self.ax2.set_ylim(-5, 5)
+            self.ax2.set_zlim(-5, 5)
         
-        if np.shape(coords)[0] == 2: #2-dim obj func
-            self.ax.set_xlabel("$F_{1}(x,y)$")
-            self.ax.set_ylabel("$F_{2}(x,y)$")
-            self.scatter = self.ax.scatter(coords[0, :], coords[1, :])
+        # MOVEMENT PLOT
+        if np.shape(m_coords)[0] == 2: #2-dim func
+            self.ax1.set_title("Particle Location")
+            self.ax1.set_xlabel("$x_1$")
+            self.ax1.set_ylabel("$x_2$")
+            self.scatter = self.ax1.scatter(m_coords[0, :], m_coords[1, :], edgecolors='b')
 
-        elif np.shape(coords)[0] == 3: #3-dim obj fun
-            self.ax.set_xlabel("$F_{1}(x,y)$")
-            self.ax.set_ylabel("$F_{2}(x,y)$")
-            self.ax.set_zlabel("$F_{3}(x,y)$")
-            self.scatter = self.ax.scatter(coords[0, :], coords[1, :], coords[2, :])
+        elif np.shape(m_coords)[0] == 3: #3-dim func
+            self.ax1.set_title("Particle Location")
+            self.ax1.set_xlabel("$x_1$")
+            self.ax1.set_ylabel("$x_2$")
+            self.ax1.set_zlabel("$x_3$")
+            self.scatter = self.ax1.scatter(m_coords[0, :], m_coords[1, :], m_coords[2, :], edgecolors='b')
+
+
+        # FITNESS PLOT
+        if np.shape(f_coords)[0] == 2: #2-dim obj func
+            self.ax2.set_title("Global Best Fitness Relation to Target")
+            self.ax2.set_xlabel("$F_{1}(x,y)$")
+            self.ax2.set_ylabel("$F_{2}(x,y)$")
+            self.scatter = self.ax2.scatter(f_coords[0, :], f_coords[1, :], marker='o', s=40, facecolor="none", edgecolors="k")
+
+        elif np.shape(f_coords)[0] == 3: #3-dim obj fun
+            self.ax2.set_title("Global Best Fitness Relation to Target")
+            self.ax2.set_xlabel("$F_{1}(x,y)$")
+            self.ax2.set_ylabel("$F_{2}(x,y)$")
+            self.ax2.set_zlabel("$F_{3}(x,y)$")
+            self.scatter = self.ax2.scatter(f_coords[0, :], f_coords[1, :], f_coords[2, :], marker='o', s=40, facecolor="none", edgecolors="k")
+
 
         if showTarget == True: # plot the target point
             if len(targets) == 1:
-                self.scatter = self.ax.scatter(targets[0], 0)
+                self.scatter = self.ax2.scatter(targets[0], 0, marker='*', edgecolors='r')
             if len(targets) == 2:
-                self.scatter = self.ax.scatter(targets[0], targets[1])
+                self.scatter = self.ax2.scatter(targets[0], targets[1], marker='*', edgecolors='r')
             elif len(targets) == 3:
-                self.scatter = self.ax.scatter(targets[0], targets[1], targets[2])
+                self.scatter = self.ax2.scatter(targets[0], targets[1], targets[2], marker='*', edgecolors='r')
 
 
         plt.pause(0.0001)  # Pause to update the plot
 
 
 
-
-    def run_PSO(self):
+    def run(self):
 
         # instantiation of particle swarm optimizer 
         while not self.mySwarm.complete():
@@ -159,8 +190,9 @@ class psoTestDetails():
                     print(iter)
                     print("Best Eval")
                     print(self.best_eval)
-            coords = self.mySwarm.M  #get x,y,z coordinate locations
-            self.update_plot(coords, self.targets, showTarget=True) #update matplot
+            m_coords = self.mySwarm.M  #get x,y,z coordinate locations
+            f_coords = self.mySwarm.F_Gb # global best of set
+            self.update_plot(m_coords, f_coords, self.targets, showTarget=True, clearAx=True) #update matplot
 
         print("Optimized Solution")
         print(self.mySwarm.get_optimized_soln())
@@ -169,5 +201,5 @@ class psoTestDetails():
 
 
 if __name__ == "__main__":
-    pso = psoTestDetails()
-    pso.run_PSO()
+    pso = TestGraph()
+    pso.run()

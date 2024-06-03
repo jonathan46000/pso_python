@@ -2,7 +2,7 @@
 
 ##--------------------------------------------------------------------\
 #   pso_python
-#   './src/pso_python/func_F.py'
+#   './pso_python/src/func_F.py'
 #   Function for objective function evaluation.
 #   Has checks for floating point error, but these should never trigger
 #       if constraints have been properly applied.

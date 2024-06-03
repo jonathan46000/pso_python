@@ -2,7 +2,7 @@
 
 ##--------------------------------------------------------------------\
 #   pso_python
-#   './src/pso_python/configs_F.py'
+#   './pso_python/src/configs_F.py'
 #   Constant values for objective function. Formatted for
 #       automating objective function integration
 #

@@ -2,12 +2,12 @@
 
 ##-------------------------------------------------------------------------------\
 #   pso_python
-#   './src/pso_python/src/pso_function_graph.py'
+#   './pso_python/src/main_function_graph.py'
 #   generates graphs for function based on constraints and configurations
 #   in-package demo for graphing the pareto front
 #
 #   Author(s): Lauren Linkous (LINKOUSLC@vcu.edu)
-#   Last update: May 28, 2024
+#   Last update: June 3, 2024
 ##-------------------------------------------------------------------------------\
 
 import numpy as np
