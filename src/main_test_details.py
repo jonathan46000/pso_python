@@ -2,7 +2,7 @@
 
 ##--------------------------------------------------------------------\
 #   pso_python
-#   './src/pso_python/main_test_details.py'
+#   './pso_python/src/main_test_details.py'
 #   Test function/example for using the 'swarm' class in particle_swarm.py.
 #       This has been modified from the original to include message 
 #       passing back to the parent class or testbench, rather than printing
@@ -21,7 +21,7 @@ import configs_F as func_configs
 
 
 
-class psoTestDetails():
+class TestDetails():
     def __init__(self):
         # Constant variables
         NO_OF_PARTICLES = 50         # Number of particles in swarm
@@ -123,5 +123,5 @@ class psoTestDetails():
 
 
 if __name__ == "__main__":
-    pso = psoTestDetails()
+    pso = TestDetails()
     pso.run_PSO()

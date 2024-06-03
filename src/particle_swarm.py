@@ -2,7 +2,7 @@
 
 ##--------------------------------------------------------------------\
 #   pso_python
-#   './src/pso_python/particle_swarm.py'
+#   './pso_python/src/particle_swarm.py'
 #   Particle swarm class featuring an adaptive time step and mean
 #       distribution. This class has been modified from the original
 #       to include message passing for UI integration, and underflow 
