@@ -2,7 +2,7 @@
 
 ##--------------------------------------------------------------------\
 #   pso_python
-#   './src/pso_python/pso_test.py'
+#   './src/pso_python/main_test.py'
 #   Test function/example for using the 'swarm' class in particle_swarm.py.
 #       This has been modified from the original to include message 
 #       passing back to the parent class or testbench, rather than printing
@@ -10,7 +10,7 @@
 #       for integration in the AntennaCAT GUI.
 #
 #   Author(s): Jonathan Lundquist, Lauren Linkous
-#   Last update: May 4, 2024
+#   Last update: June 3, 2024
 ##--------------------------------------------------------------------\
 
 

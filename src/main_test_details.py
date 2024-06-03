@@ -2,25 +2,23 @@
 
 ##--------------------------------------------------------------------\
 #   pso_python
-#   './src/pso_python/pso_test_graph.py'
+#   './src/pso_python/main_test_details.py'
 #   Test function/example for using the 'swarm' class in particle_swarm.py.
 #       This has been modified from the original to include message 
 #       passing back to the parent class or testbench, rather than printing
 #       error messages directly from the 'swarm' class. Format updates are 
 #       for integration in the AntennaCAT GUI.
-#       This version builds from 'pso_test_details.py' to include a 
-#       matplotlib plot of particle location
 #
-#   Author(s): Lauren Linkous, Jonathan Lundquist,
-#   Last update: May 28, 2024
+#   Author(s): Lauren Linkous, Jonathan Lundquist
+#   Last update: June 3, 2024
 ##--------------------------------------------------------------------\
 
 
 import numpy as np
 import time
-import matplotlib.pyplot as plt
 from particle_swarm import swarm
 import configs_F as func_configs
+
 
 
 class psoTestDetails():
@@ -79,15 +77,6 @@ class psoTestDetails():
                         T_MOD, E_TOL, MAXIT, BOUNDARY, func_F, constr_F, parent, detailedWarnings)  
 
 
-        # Matplotlib setup
-        self.targets = TARGETS
-        self.fig = plt.figure()
-        self.ax = self.fig.add_subplot(111, projection='3d')
-        self.ax.set_xlabel('X')
-        self.ax.set_ylabel('Y')
-        self.ax.set_zlabel('Z')
-        self.scatter = None
-
 
     def debug_message_printout(self, txt):
         if txt is None:
@@ -103,40 +92,6 @@ class psoTestDetails():
         # running in the AntennaCAT GUI to record the parameter iteration that caused an error
         pass
          
-
-    def update_plot(self, coords, targets, showTarget, clearAx=True, setLimts=False):
-        # if self.scatter is None:
-        if clearAx == True:
-            self.ax.clear() #use this to git rid of the 'ant tunnel' trails
-        if setLimts == True:
-            self.ax.set_xlim(-.5, 3)
-            self.ax.set_ylim(-.5, 3)
-            self.ax.set_zlim(-.5, 3)
-        
-        if np.shape(coords)[0] == 2: #2-dim obj func
-            self.ax.set_xlabel("$F_{1}(x,y)$")
-            self.ax.set_ylabel("$F_{2}(x,y)$")
-            self.scatter = self.ax.scatter(coords[0, :], coords[1, :])
-
-        elif np.shape(coords)[0] == 3: #3-dim obj fun
-            self.ax.set_xlabel("$F_{1}(x,y)$")
-            self.ax.set_ylabel("$F_{2}(x,y)$")
-            self.ax.set_zlabel("$F_{3}(x,y)$")
-            self.scatter = self.ax.scatter(coords[0, :], coords[1, :], coords[2, :])
-
-        if showTarget == True: # plot the target point
-            if len(targets) == 1:
-                self.scatter = self.ax.scatter(targets[0], 0)
-            if len(targets) == 2:
-                self.scatter = self.ax.scatter(targets[0], targets[1])
-            elif len(targets) == 3:
-                self.scatter = self.ax.scatter(targets[0], targets[1], targets[2])
-
-
-        plt.pause(0.0001)  # Pause to update the plot
-
-
-
 
     def run_PSO(self):
 
@@ -159,13 +114,12 @@ class psoTestDetails():
                     print(iter)
                     print("Best Eval")
                     print(self.best_eval)
-            coords = self.mySwarm.M  #get x,y,z coordinate locations
-            self.update_plot(coords, self.targets, showTarget=True) #update matplot
 
         print("Optimized Solution")
         print(self.mySwarm.get_optimized_soln())
         print("Optimized Outputs")
         print(self.mySwarm.get_optimized_outs())
+
 
 
 if __name__ == "__main__":
