@@ -93,7 +93,7 @@ class TestDetails():
         pass
          
 
-    def run_PSO(self):
+    def run(self):
 
         # instantiation of particle swarm optimizer 
         while not self.mySwarm.complete():
@@ -124,4 +124,4 @@ class TestDetails():
 
 if __name__ == "__main__":
     pso = TestDetails()
-    pso.run_PSO()
+    pso.run()

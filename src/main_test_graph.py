@@ -169,7 +169,7 @@ class TestGraph():
 
 
 
-    def run_PSO(self):
+    def run(self):
 
         # instantiation of particle swarm optimizer 
         while not self.mySwarm.complete():
@@ -202,4 +202,4 @@ class TestGraph():
 
 if __name__ == "__main__":
     pso = TestGraph()
-    pso.run_PSO()
+    pso.run()
