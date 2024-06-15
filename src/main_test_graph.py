@@ -12,7 +12,7 @@
 #       matplotlib plot of particle location
 #
 #   Author(s): Lauren Linkous, Jonathan Lundquist
-#   Last update: June 3 2024
+#   Last update: June 14, 2024
 ##--------------------------------------------------------------------\
 
 
@@ -26,13 +26,15 @@ import configs_F as func_configs
 
 class TestGraph():
     def __init__(self):
+        self.ctr = 0
+
         # Constant variables
         NO_OF_PARTICLES = 50         # Number of particles in swarm
         T_MOD = 0.65                 # Variable time-step extinction coefficient
         E_TOL = 10 ** -6             # Convergence Tolerance
         MAXIT = 5000                 # Maximum allowed iterations
         BOUNDARY = 1                 # int boundary 1 = random,      2 = reflecting
-                                    #              3 = absorbing,   4 = invisible
+                                     #              3 = absorbing,   4 = invisible
 
 
         # Objective function dependent variables
@@ -70,9 +72,8 @@ class TestGraph():
                                         #  Includes error messages and warnings)
 
         self.allow_update = True      # Allow objective call to update state 
-                                        # (Can be set on each iteration to allow 
-                                        # for when control flow can be returned 
-                                        # to multiglods)
+
+
 
 
         self.mySwarm = swarm(NO_OF_PARTICLES, LB, UB,
@@ -82,10 +83,10 @@ class TestGraph():
 
         # Matplotlib setup
         self.targets = TARGETS
-        self.fig = plt.figure(figsize=(14, 7))
+        self.fig = plt.figure(figsize=(10, 5))#(figsize=(14, 7))
         # position
         self.ax1 = self.fig.add_subplot(121, projection='3d')
-        self.ax1.set_title("Particle Location")
+        self.ax1.set_title("Particle Location, Iteration: " + str(self.ctr))
         self.ax1.set_xlabel('X')
         self.ax1.set_ylabel('Y')
         self.ax1.set_zlabel('Z')
@@ -129,13 +130,13 @@ class TestGraph():
         
         # MOVEMENT PLOT
         if np.shape(m_coords)[0] == 2: #2-dim func
-            self.ax1.set_title("Particle Location")
+            self.ax1.set_title("Particle Location, Iteration: " + str(self.ctr))
             self.ax1.set_xlabel("$x_1$")
             self.ax1.set_ylabel("$x_2$")
             self.scatter = self.ax1.scatter(m_coords[0, :], m_coords[1, :], edgecolors='b')
 
         elif np.shape(m_coords)[0] == 3: #3-dim func
-            self.ax1.set_title("Particle Location")
+            self.ax1.set_title("Particle Location, Iteration: " + str(self.ctr))
             self.ax1.set_xlabel("$x_1$")
             self.ax1.set_ylabel("$x_2$")
             self.ax1.set_zlabel("$x_3$")
@@ -167,11 +168,11 @@ class TestGraph():
 
 
         plt.pause(0.0001)  # Pause to update the plot
+        self.ctr = self.ctr + 1
 
 
 
     def run(self):
-
         # instantiation of particle swarm optimizer 
         while not self.mySwarm.complete():
 
@@ -200,6 +201,7 @@ class TestGraph():
         print("Optimized Outputs")
         print(self.mySwarm.get_optimized_outs())
 
+        time.sleep(15) #keep the window open for 15 seconds before ending program
 
 if __name__ == "__main__":
     pso = TestGraph()

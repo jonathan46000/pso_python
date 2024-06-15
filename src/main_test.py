@@ -10,7 +10,7 @@
 #       for integration in the AntennaCAT GUI.
 #
 #   Author(s): Jonathan Lundquist, Lauren Linkous
-#   Last update: June 3, 2024 
+#   Last update: June 14, 2024 
 ##--------------------------------------------------------------------\
 
 
@@ -41,9 +41,8 @@ if __name__ == "__main__":
     suppress_output = True   # Suppress the console output of particle swarm
 
     allow_update = True      # Allow objective call to update state 
-                            # (Can be set on each iteration to allow 
-                            # for when control flow can be returned 
-                            # to multiglods)
+
+
 
     mySwarm = swarm(NO_OF_PARTICLES, LB, UB,
                     WEIGHTS, VLIM, OUT_VARS, TARGETS,
