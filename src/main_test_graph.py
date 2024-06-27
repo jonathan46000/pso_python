@@ -29,7 +29,7 @@ class TestGraph():
         self.ctr = 0
 
         # Constant variables
-        NO_OF_PARTICLES = 50         # Number of particles in swarm
+        NO_OF_PARTICLES = 1         # Number of particles in swarm
         T_MOD = 0.65                 # Variable time-step extinction coefficient
         E_TOL = 10 ** -6             # Convergence Tolerance
         MAXIT = 5000                 # Maximum allowed iterations
@@ -65,7 +65,7 @@ class TestGraph():
                                         # other information that will appear 
                                         # in GUI panels)
 
-        self.suppress_output = True   # Suppress the console output of particle swarm
+        self.suppress_output = False   # Suppress the console output of particle swarm
 
         detailedWarnings = False      # Optional boolean for detailed feedback
                                         # (Independent of suppress output. 
@@ -129,33 +129,34 @@ class TestGraph():
             self.ax2.set_zlim(-5, 5)
         
         # MOVEMENT PLOT
-        if np.shape(m_coords)[0] == 2: #2-dim func
-            self.ax1.set_title("Particle Location, Iteration: " + str(self.ctr))
+        if np.shape(m_coords)[1] == 2: #2-dim func
+            self.ax1.set_title("Particle Location, Iteration: " +str(self.ctr))
             self.ax1.set_xlabel("$x_1$")
             self.ax1.set_ylabel("$x_2$")
-            self.scatter = self.ax1.scatter(m_coords[0, :], m_coords[1, :], edgecolors='b')
+            self.scatter = self.ax1.scatter(m_coords[:,0], m_coords[:,1], edgecolors='b')
 
-        elif np.shape(m_coords)[0] == 3: #3-dim func
-            self.ax1.set_title("Particle Location, Iteration: " + str(self.ctr))
+        elif np.shape(m_coords)[1] == 3: #3-dim func
+            self.ax1.set_title("Particle Location, Iteration: " +str(self.ctr))
             self.ax1.set_xlabel("$x_1$")
             self.ax1.set_ylabel("$x_2$")
             self.ax1.set_zlabel("$x_3$")
-            self.scatter = self.ax1.scatter(m_coords[0, :], m_coords[1, :], m_coords[2, :], edgecolors='b')
+            self.scatter = self.ax1.scatter(m_coords[:,0], m_coords[:,1], m_coords[:,2], edgecolors='b')
 
 
         # FITNESS PLOT
-        if np.shape(f_coords)[0] == 2: #2-dim obj func
+        if np.shape(f_coords)[1] == 2: #2-dim obj func
             self.ax2.set_title("Global Best Fitness Relation to Target")
             self.ax2.set_xlabel("$F_{1}(x,y)$")
             self.ax2.set_ylabel("$F_{2}(x,y)$")
-            self.scatter = self.ax2.scatter(f_coords[0, :], f_coords[1, :], marker='o', s=40, facecolor="none", edgecolors="k")
+            self.scatter = self.ax2.scatter(f_coords[:,0], f_coords[:,1], marker='o', s=40, facecolor="none", edgecolors="k")
 
-        elif np.shape(f_coords)[0] == 3: #3-dim obj fun
+        elif np.shape(f_coords)[1] == 3: #3-dim obj fun
             self.ax2.set_title("Global Best Fitness Relation to Target")
             self.ax2.set_xlabel("$F_{1}(x,y)$")
             self.ax2.set_ylabel("$F_{2}(x,y)$")
             self.ax2.set_zlabel("$F_{3}(x,y)$")
-            self.scatter = self.ax2.scatter(f_coords[0, :], f_coords[1, :], f_coords[2, :], marker='o', s=40, facecolor="none", edgecolors="k")
+            self.scatter = self.ax2.scatter(f_coords[:,0], f_coords[:,1], f_coords[:,2], marker='o', s=40, facecolor="none", edgecolors="k")
+
 
 
         if showTarget == True: # plot the target point
