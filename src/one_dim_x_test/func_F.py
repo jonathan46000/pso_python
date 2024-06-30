@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 ##-------------------------------------------------------------------------------\
-#   pso_basic
+#   pso_python
 #   '.src/one_dim_x_test/func_F.py'
 #   objective function for function compatable with project optimizers
 #

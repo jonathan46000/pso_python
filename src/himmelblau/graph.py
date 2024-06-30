@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 ##-------------------------------------------------------------------------------\
-#   pso_basic
+#   pso_python
 #   '.src/himmelblau/graph.py'
 #   generates graphs for function based on constraints and configurations
 #

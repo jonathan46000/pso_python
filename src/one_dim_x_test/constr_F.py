@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 ##-------------------------------------------------------------------------------\
-#   pso_basic
+#   pso_python
 #   '.src/one_dim_x_test/constr_F.py'
 #   constraints function for function compatable with project optimizers
 #

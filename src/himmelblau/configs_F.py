@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 ##-------------------------------------------------------------------------------\
-#   pso_basic
+#   pso_python
 #   '.src/himmelblau/configs_F.py'
 #   configurations for function compatable with project optimizers
 #
