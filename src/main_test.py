@@ -14,25 +14,37 @@
 ##--------------------------------------------------------------------\
 
 
-import numpy as np
 from particle_swarm import swarm
-from func_F import func_F
-from constr_F import constr_F
+
+# OBJECTIVE FUNCTION SELECTION
+#import one_dim_x_test.configs_F as func_configs     # single objective, 1D input
+#import himmelblau.configs_F as func_configs         # single objective, 2D input
+import lundquist_3_var.configs_F as func_configs     # multi objective function
 
 
 if __name__ == "__main__":
+    # Constant variables
     NO_OF_PARTICLES = 50         # Number of particles in swarm
-    LB = [[0.21, 0, 0.1]]        # Lower boundaries
-    UB = [[1, 1, 0.5]]           # Upper boundaries
-    WEIGHTS = [[0.7, 1.5, 0.5]]  # Update vector weights
-    VLIM = 0.5                   # Initial velocity limit
-    OUT_VARS = 2                 # Number of output variables (y-values)
-    TARGETS = [0, 0]             # Target values for output
     T_MOD = 0.65                 # Variable time-step extinction coefficient
     E_TOL = 10 ** -6             # Convergence Tolerance
     MAXIT = 5000                 # Maximum allowed iterations
     BOUNDARY = 1                 # int boundary 1 = random,      2 = reflecting
-                                 #              3 = absorbing,   4 = invisible
+                                    #              3 = absorbing,   4 = invisible
+
+
+    # Objective function dependent variables
+    func_F = func_configs.OBJECTIVE_FUNC  # objective function
+    constr_F = func_configs.CONSTR_FUNC   # constraint function
+
+    LB = func_configs.LB              # Lower boundaries, [[0.21, 0, 0.1]]
+    UB = func_configs.UB              # Upper boundaries, [[1, 1, 0.5]]   
+    OUT_VARS = func_configs.OUT_VARS  # Number of output variables (y-values)
+    TARGETS = func_configs.TARGETS    # Target values for output
+
+    # optimizer constants
+    WEIGHTS = [[0.7, 1.5, 0.5]]       # Update vector weights
+    VLIM = 0.5                        # Initial velocity limit
+
 
     best_eval = 1
 
