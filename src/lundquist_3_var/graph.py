@@ -2,15 +2,16 @@
 
 ##-------------------------------------------------------------------------------\
 #   pso_python
-#   './pso_python/src/main_function_graph.py'
+#   '.src/lundquist_3_var/graph.py'
 #   generates graphs for function based on constraints and configurations
 #   in-package demo for graphing the pareto front
 #
 #   Author(s): Lauren Linkous (LINKOUSLC@vcu.edu)
-#   Last update: June 3, 2024
+#   Last update: May 25, 2024
 ##-------------------------------------------------------------------------------\
 
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 import configs_F as f_c
@@ -26,6 +27,10 @@ UB_z = UPPER_BOUNDS[2]
 IN_VARS = f_c.IN_VARS
 FUNC_F = f_c.OBJECTIVE_FUNC
 CONSTR_F = f_c.CONSTR_FUNC
+
+# for exporting df to csv
+filename = 'lundquist_3var_pareto_coords_output.csv'
+plotname ='lundquist_3var_plots.png'
 
 def pareto_front(X, Y, minimize=True):
     pareto_front_X = []
@@ -49,7 +54,6 @@ def pareto_front(X, Y, minimize=True):
                 pareto_front_Y_min = y
 
     return pareto_front_X, pareto_front_Y
-
 
 
 # Define range and step size
@@ -96,9 +100,9 @@ fig = plt.figure(figsize=(14, 7))
 # 2D valid state space subplot - dimensionality reduction
 ax1 = fig.add_subplot(121, projection='3d')
 decision_space = ax1.tricontourf(valid_x, valid_y, valid_z, cmap='viridis')
-ax1.set_xlabel('x')
-ax1.set_ylabel('y')
-ax1.set_zlabel('z')
+ax1.set_xlabel('$x_1$')
+ax1.set_ylabel('$x_2$')
+ax1.set_zlabel('$x_3$')
 ax1.set_title('Feasible Decision Space')
 
 
@@ -113,13 +117,28 @@ else: # not pareto optimal
     objective_space = ax2.scatter(objective_x.flatten(), objective_y.flatten(), color='c')
     ax2.scatter(pareto_x, pareto_y, marker='*', color='black')
 
-ax2.set_xlabel('$f_{1}(x,y)$')
-ax2.set_ylabel('$f_{2}(x,y)$')
+ax2.set_xlabel('$f_{1}(x_1,x_2,x_3)$')
+ax2.set_ylabel('$f_{2}(x_1,x_2,x_3)$')
 ax2.set_title('Pareto Front & Feasible Objective Space')
 
+#data frame for getting the coords for the various pareto fronts
+df = pd.DataFrame({})
+
+# Add two new columns to the dataframe
+x_col = "x"
+y_col = "y"
+df_loop = pd.DataFrame({x_col: pareto_x,
+                        y_col: pareto_y}) #not looped, but using name for consistency
+df = pd.concat([df, df_loop], axis=1) 
+
+# Write DataFrame to CSV
+df.to_csv(filename, index=False)  
 
 # Adjust layout
 plt.tight_layout()
+
+# Save Plot
+plt.savefig(plotname)
 
 # Show plot
 plt.show()
