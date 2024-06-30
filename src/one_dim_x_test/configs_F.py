@@ -13,7 +13,7 @@
 import sys
 
 try: # for outside func calls
-    sys.path.insert(0, './multi_glods_python/src/')
+    sys.path.insert(0, './pso_python/src/')
     from one_dim_x_test.func_F import func_F
     from one_dim_x_test.constr_F import constr_F
 except: # for local

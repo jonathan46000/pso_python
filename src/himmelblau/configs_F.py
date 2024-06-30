@@ -12,7 +12,7 @@
 
 import sys
 try: # for outside func calls
-    sys.path.insert(0, './multi_glods_python/src/')
+    sys.path.insert(0, './pso_python/src/')
     from himmelblau.func_F import func_F
     from himmelblau.constr_F import constr_F
 except: # for local
