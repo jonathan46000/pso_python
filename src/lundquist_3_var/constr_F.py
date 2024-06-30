@@ -1,8 +1,8 @@
 #! /usr/bin/python3
 
 ##--------------------------------------------------------------------\
-#   pso_python
-#   './pso_python/src/constr_F.py'
+#   pso_basic
+#   '.src/lundquist_3_var/constr_F.py'
 #   Function for objective function constraints.
 #   Has 2 checks: 1 for the function limitations, 1 for float size
 #   Returns True if x array passes constraints check, False otherwise   
