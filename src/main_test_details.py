@@ -14,10 +14,13 @@
 ##--------------------------------------------------------------------\
 
 
-import numpy as np
 import time
 from particle_swarm import swarm
-import configs_F as func_configs
+
+# OBJECTIVE FUNCTION SELECTION
+#import one_dim_x_test.configs_F as func_configs     # single objective, 1D input
+#import himmelblau.configs_F as func_configs         # single objective, 2D input
+import lundquist_3_var.configs_F as func_configs     # multi objective function
 
 
 
@@ -29,19 +32,20 @@ class TestDetails():
         E_TOL = 10 ** -6             # Convergence Tolerance
         MAXIT = 5000                 # Maximum allowed iterations
         BOUNDARY = 1                 # int boundary 1 = random,      2 = reflecting
-                                    #              3 = absorbing,   4 = invisible
+                                        #              3 = absorbing,   4 = invisible
+        WEIGHTS = [[0.7, 1.5, 0.5]]       # Update vector weights
+        VLIM = 0.5                        # Initial velocity limit
+
+
+        LB = func_configs.LB              # Lower boundaries, [[0.21, 0, 0.1]]
+        UB = func_configs.UB              # Upper boundaries, [[1, 1, 0.5]]   
+        OUT_VARS = func_configs.OUT_VARS  # Number of output variables (y-values)
+        TARGETS = func_configs.TARGETS    # Target values for output
 
 
         # Objective function dependent variables
         func_F = func_configs.OBJECTIVE_FUNC  # objective function
         constr_F = func_configs.CONSTR_FUNC   # constraint function
-
-        LB = func_configs.LB              # Lower boundaries, [[0.21, 0, 0.1]]
-        UB = func_configs.UB              # Upper boundaries, [[1, 1, 0.5]]   
-        WEIGHTS = [[0.7, 1.5, 0.5]]       # Update vector weights
-        VLIM = 0.5                        # Initial velocity limit
-        OUT_VARS = func_configs.OUT_VARS  # Number of output variables (y-values)
-        TARGETS = func_configs.TARGETS    # Target values for output
 
         # Swarm setting values
         parent = self                 # Optional parent class for swarm 
