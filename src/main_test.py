@@ -10,7 +10,7 @@
 #       for integration in the AntennaCAT GUI.
 #
 #   Author(s): Jonathan Lundquist, Lauren Linkous
-#   Last update: June 29, 2024
+#   Last update: August 18, 2024
 ##--------------------------------------------------------------------\
 
 
@@ -60,7 +60,8 @@ if __name__ == "__main__":
 
     mySwarm = swarm(NO_OF_PARTICLES, LB, UB,
                     WEIGHTS, VLIM, OUT_VARS, TARGETS,
-                    T_MOD, E_TOL, MAXIT, BOUNDARY, func_F, constr_F)  
+                    T_MOD, E_TOL, MAXIT, BOUNDARY, 
+                    func_F, constr_F)  
 
     # instantiation of particle swarm optimizer 
     while not mySwarm.complete():

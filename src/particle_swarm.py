@@ -6,39 +6,38 @@
 #   Particle swarm class featuring an adaptive time step and mean
 #       distribution. This class has been modified from the original
 #       to include message passing for UI integration, and underflow 
-#       and overflow min/max caps to accomodate wider user input
+#       and overflow min/max caps to accommodate wider user input
 #       options in AntennaCAT.
 #       
 #
 #   Author(s): Jonathan Lundquist, Lauren Linkous
-#   Last update: June 14, 2024
+#   Last update: August 18, 2024
 ##--------------------------------------------------------------------\
-
 
 import numpy as np
 from numpy.random import Generator, MT19937
 import sys
-import time
 np.seterr(all='raise')
-
 
 class swarm:
     # arguments should take form: 
-    # swarm(int, [[float, float, ...]], 
-    # [[float, float, ...]], [[float, ...]], 
-    # float, int, [[float, ...]], float, 
-    # float, int, int, func) 
+    # swarm(int, [[float, float, ...]], [[float, float, ...]], 
+    #  [[float, ...]],  float, int, [[float, ...]], 
+    #  float, float, int, int, 
+    #  func, func,
+    #  class obj, bool) 
     # int boundary 1 = random,      2 = reflecting
     #              3 = absorbing,   4 = invisible
     def __init__(self, NO_OF_PARTICLES, lbound, ubound,
                  weights, vlimit, output_size, targets,
-                 T_MOD, E_TOL, maxit, boundary, obj_func,
-                 constr_func, parent=None, detailedWarnings=False):  
+                 T_MOD, E_TOL, maxit, boundary, 
+                 obj_func, constr_func, 
+                 parent=None, detailedWarnings=False):  
         
         # Optional parent class func call to write out values that trigger constraint issues
         self.parent = parent 
         # Additional output for advanced debugging to TERMINAL. 
-        # Some of these messages will be returned via debugTigger
+        # Some of these messages will be returned via debug
         self.detailedWarnings = detailedWarnings 
 
         heightl = np.shape(lbound)[0]
@@ -78,10 +77,8 @@ class swarm:
             self.M = np.array(np.multiply(self.rng.random((1,np.max([heightl, widthl]))), 
                                                                 variation)+lbound)    
 
-
             self.V = np.array(np.multiply(self.rng.random((1,np.max([heightl,widthl]))), 
                                                                      vlimit))
-
 
             for i in range(2,int(NO_OF_PARTICLES)+1):
                 
@@ -181,26 +178,14 @@ class swarm:
                 update = i+1        
         return update
 
-
-    def validate_obj_function(self, particle):
-        # checks the the objective function resolves with the current particle.
-        # It is possible (and likely) that obj funcs without proper error handling
-        # will throw over/underflow errors.
-        # e.g.: numpy does not support float128()
-        newFVals, noError = self.obj_func(particle, self.output_size)
-        if noError == False:
-            #print("!!!!")
-            pass
-        return noError
-
     def random_bound(self, particle):
         # If particle is out of bounds, bring the particle back in bounds
         # The first condition checks if constraints are met, 
-        # and the second determins if the values are to large (positive or negitive)
+        # and the second determines if the values are to large (positive or negative)
         # and may cause a buffer overflow with large exponents (a bug that was found experimentally)
-        update = self.check_bounds(particle) or not self.constr_func(self.M[particle]) or not self.validate_obj_function(np.hstack(self.M[self.current_particle]))
+        update = self.check_bounds(particle) or not self.constr_func(self.M[particle])
         if update > 0:
-            while(self.check_bounds(particle)>0) or (self.constr_func(self.M[particle])==False) or (self.validate_obj_function(self.M[particle])==False): 
+            while(self.check_bounds(particle)>0) or (self.constr_func(self.M[particle])==False): 
                 variation = self.ubound-self.lbound
                 self.M[particle] = \
                     np.squeeze(self.rng.random() * 
@@ -227,7 +212,7 @@ class swarm:
             self.random_bound(particle)
 
     def invisible_bound(self, particle):
-        update = self.check_bounds(particle) or not self.constr_func(self.M[particle]) or not self.validate_obj_function(self.M[particle])
+        update = self.check_bounds(particle) or not self.constr_func(self.M[particle])
         if update > 0:
             self.Active[particle] = 0  
         else:
@@ -264,7 +249,6 @@ class swarm:
         self.V[particle] = self.floating_point_error_handler("self.V[particle] ", self.V[particle] )
         
         self.M[particle] = self.M[particle] + self.delta_t*self.V[particle]
-
 
     def update_delta_t(self):
         self.delta_t = self.absolute_mean_deviation_of_particles()/(self.T_MOD*self.InitDeviation)
@@ -316,7 +300,6 @@ class swarm:
                     "Flist: \n" + str(self.F_Gb) + "\n" + \
                     "Norm Flist: \n" + str(np.linalg.norm(self.F_Gb)) + "\n"
                 self.error_message_generator(msg)
-
 
 
     def export_swarm(self):
@@ -451,3 +434,5 @@ class swarm:
             print(msg)
         else:
             self.parent.debug_message_printout(msg)
+
+
