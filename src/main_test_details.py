@@ -10,7 +10,7 @@
 #       for integration in the AntennaCAT GUI.
 #
 #   Author(s): Lauren Linkous, Jonathan Lundquist
-#   Last update: June 14, 2024
+#   Last update: August 18, 2024
 ##--------------------------------------------------------------------\
 
 
@@ -77,7 +77,8 @@ class TestDetails():
 
         self.mySwarm = swarm(NO_OF_PARTICLES, LB, UB,
                         WEIGHTS, VLIM, OUT_VARS, TARGETS,
-                        T_MOD, E_TOL, MAXIT, BOUNDARY, func_F, constr_F, parent, detailedWarnings)  
+                        T_MOD, E_TOL, MAXIT, BOUNDARY, 
+                        func_F, constr_F, parent, detailedWarnings)  
 
 
 

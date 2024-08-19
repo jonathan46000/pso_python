@@ -12,7 +12,7 @@
 #       matplotlib plot of particle location
 #
 #   Author(s): Lauren Linkous, Jonathan Lundquist,
-#   Last update: June 3, 2024
+#   Last update: August 18, 2024
 ##--------------------------------------------------------------------\
 
 
@@ -24,8 +24,8 @@ from particle_swarm import swarm
 
 # OBJECTIVE FUNCTION SELECTION
 #import one_dim_x_test.configs_F as func_configs     # single objective, 1D input
-import himmelblau.configs_F as func_configs         # single objective, 2D input
-#import lundquist_3_var.configs_F as func_configs     # multi objective function
+#import himmelblau.configs_F as func_configs         # single objective, 2D input
+import lundquist_3_var.configs_F as func_configs     # multi objective function
 
 
 class TestGraph():
@@ -83,7 +83,8 @@ class TestGraph():
 
         self.mySwarm = swarm(NO_OF_PARTICLES, LB, UB,
                         WEIGHTS, VLIM, OUT_VARS, TARGETS,
-                        T_MOD, E_TOL, MAXIT, BOUNDARY, func_F, constr_F, parent, detailedWarnings)  
+                        T_MOD, E_TOL, MAXIT, BOUNDARY, 
+                        func_F, constr_F, parent, detailedWarnings)  
 
 
         # Matplotlib setup
@@ -92,16 +93,16 @@ class TestGraph():
         # position
         self.ax1 = self.fig.add_subplot(121, projection='3d')
         self.ax1.set_title("Particle Location, Iteration: " + str(self.ctr))
-        self.ax1.set_xlabel('X')
-        self.ax1.set_ylabel('Y')
-        self.ax1.set_zlabel('Z')
+        self.ax1.set_xlabel('x_1')
+        self.ax1.set_ylabel('x_2')
+        self.ax1.set_zlabel('x_3')
         self.scatter1 = None
         # fitness
         self.ax2 = self.fig.add_subplot(122, projection='3d')
         self.ax2.set_title("Fitness Relation to Target")
-        self.ax2.set_xlabel('X')
-        self.ax2.set_ylabel('Y')
-        self.ax2.set_zlabel('Z')
+        self.ax2.set_xlabel('x_1')
+        self.ax2.set_ylabel('x_2')
+        self.ax2.set_zlabel('x_3')
         self.scatter2 = None
 
     def debug_message_printout(self, txt):
@@ -112,12 +113,6 @@ class TestGraph():
         msg = "[" + str(curTime) +"] " + str(txt)
         print(msg)
 
-
-    def record_params(self):
-        # this function is called from particle_swarm.py to trigger a write to a log file
-        # running in the AntennaCAT GUI to record the parameter iteration that caused an error
-        pass
-         
 
     def update_plot(self, x_coords, y_coords, targets, showTarget=True, clearAx=True):
         
@@ -136,12 +131,14 @@ class TestGraph():
             self.ax1.set_title("Search Locations, Iteration: " + str(self.ctr))
             self.ax1.set_xlabel("$x_1$")
             self.ax1.set_ylabel("filler coords")
+            self.ax1.set_zlabel("filler coords")
             self.scatter = self.ax1.scatter(x_coords, x_plot_coords, edgecolors='b')   
         
         elif np.shape(x_coords)[1] == 2: #2-dim func
             self.ax1.set_title("Search Locations, Iteration: " + str(self.ctr))
             self.ax1.set_xlabel("$x_1$")
             self.ax1.set_ylabel("$x_2$")
+            self.ax1.set_zlabel("filler coords")
             self.scatter = self.ax1.scatter(x_coords[:,0], x_coords[:,1], edgecolors='b')
 
         elif np.shape(x_coords)[1] == 3: #3-dim func
@@ -156,21 +153,23 @@ class TestGraph():
         if np.shape(y_coords)[1] == 1: #1-dim obj func
             y_plot_filler = np.array(y_coords[:,0])*0.0
             self.ax2.set_title("Global Best Fitness Relation to Target")
-            self.ax2.set_xlabel("$F_{1}(x,y)$")
+            self.ax2.set_xlabel("$F_{1}(x_1,x_2)$")
             self.ax2.set_ylabel("filler coords")
+            self.ax2.set_zlabel("filler coords")
             self.scatter = self.ax2.scatter(y_coords, y_plot_filler,  marker='o', s=40, facecolor="none", edgecolors="k")
 
         elif np.shape(y_coords)[1] == 2: #2-dim obj func
             self.ax2.set_title("Global Best Fitness Relation to Target")
-            self.ax2.set_xlabel("$F_{1}(x,y)$")
-            self.ax2.set_ylabel("$F_{2}(x,y)$")
+            self.ax2.set_xlabel("$F_{1}(x_1,x_2)$")
+            self.ax2.set_ylabel("$F_{2}(x_1,x_2)$")
+            self.ax2.set_zlabel("filler coords")
             self.scatter = self.ax2.scatter(y_coords[:,0], y_coords[:,1], marker='o', s=40, facecolor="none", edgecolors="k")
 
         elif np.shape(y_coords)[1] == 3: #3-dim obj fun
             self.ax2.set_title("Global Best Fitness Relation to Target")
-            self.ax2.set_xlabel("$F_{1}(x,y)$")
-            self.ax2.set_ylabel("$F_{2}(x,y)$")
-            self.ax2.set_zlabel("$F_{3}(x,y)$")
+            self.ax2.set_xlabel("$F_{1}(x_1,x_2)$")
+            self.ax2.set_ylabel("$F_{2}(x_1,x_2)$")
+            self.ax2.set_zlabel("$F_{3}(x_1,x_2)$")
             self.scatter = self.ax2.scatter(y_coords[:,0], y_coords[:,1], y_coords[:,2], marker='o', s=40, facecolor="none", edgecolors="k")
 
 
@@ -217,6 +216,8 @@ class TestGraph():
         print(self.mySwarm.get_optimized_soln())
         print("Optimized Outputs")
         print(self.mySwarm.get_optimized_outs())
+
+        print("optimization ended. figure window will close in 15 seconds.")
 
         time.sleep(15) #keep the window open for 15 seconds before ending program
 
