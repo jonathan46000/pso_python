@@ -13,7 +13,6 @@ Now featuring AntennaCAT hooks for GUI integration and user input handling.
     * [Multi-Object Optimization](#multi-object-optimization)
     * [Objective Function Handling](#objective-function-handling)
       * [Internal Objective Function Example](internal-objective-function-example)
-* [Error Handling](#error-handling)
 * [Example Implementations](#example-implementations)
     * [Basic PSO Example](#basic-pso-example)
     * [Detailed Messages](#detailed-messages)
