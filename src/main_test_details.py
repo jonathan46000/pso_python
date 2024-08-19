@@ -10,7 +10,7 @@
 #       for integration in the AntennaCAT GUI.
 #
 #   Author(s): Lauren Linkous, Jonathan Lundquist
-#   Last update: June 14, 2024
+#   Last update: August 18, 2024
 ##--------------------------------------------------------------------\
 
 
@@ -30,11 +30,10 @@ class TestDetails():
     def __init__(self):
         # Constant variables
         NO_OF_PARTICLES = 50         # Number of particles in swarm
-        T_MOD = 0.65                 # Variable time-step extinction coefficient
         E_TOL = 10 ** -6             # Convergence Tolerance
         MAXIT = 5000                 # Maximum allowed iterations
         BOUNDARY = 1                 # int boundary 1 = random,      2 = reflecting
-                                    #              3 = absorbing,   4 = invisible
+                                     #              3 = absorbing,   4 = invisible
 
 
         # Objective function dependent variables
@@ -52,7 +51,7 @@ class TestDetails():
 
 
         # Swarm setting values
-        parent = self                 # Optional parent class for swarm 
+        parent = self                   # Optional parent class for swarm 
                                         # (Used for passing debug messages or
                                         # other information that will appear 
                                         # in GUI panels)
@@ -81,8 +80,8 @@ class TestDetails():
 
         self.mySwarm = swarm(NO_OF_PARTICLES, LB, UB,
                         WEIGHTS, VLIM, OUT_VARS, TARGETS,
-                        T_MOD, E_TOL, MAXIT, BOUNDARY, func_F, constr_F, parent, detailedWarnings)  
-
+                        E_TOL, MAXIT, BOUNDARY, 
+                        func_F, constr_F, parent, detailedWarnings)  
 
 
     def debug_message_printout(self, txt):
@@ -93,12 +92,6 @@ class TestDetails():
         msg = "[" + str(curTime) +"] " + str(txt)
         print(msg)
 
-
-    def record_params(self):
-        # this function is called from particle_swarm.py to trigger a write to a log file
-        # running in the AntennaCAT GUI to record the parameter iteration that caused an error
-        pass
-         
 
     def run(self):
 

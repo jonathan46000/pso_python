@@ -5,20 +5,13 @@
 #   './pso_basic/src/particle_swarm.py'
 #   Particle swarm class. This class has been modified from the original
 #       to include message passing for UI integration, and underflow 
-#       and overflow min/max caps to accomodate wider user input
-#       options in AntennaCAT.
+#       and overflow min/max caps to accommodate wider user input
+#       options in AntennaCAT. Does not use time step modulation.
 #       
-#       The self.delta_t variable that was the adaptive timestep has
-#       been left in to make it clear how little code was changed 
-#       between the two repo versions and to retain the export format
-#       
-#        self.delta_t is set constant to 1
 #
-#
-#   Author(s): Jonathan Lundquist, Lauren Linkous
-#   Last update: June 14, 2024
+#   Author(s):  Lauren Linkous, Jonathan Lundquist
+#   Last update: August 18, 2024
 ##--------------------------------------------------------------------\
-
 
 import numpy as np
 from numpy.random import Generator, MT19937
@@ -26,26 +19,32 @@ import sys
 import time
 np.seterr(all='raise')
 
+import numpy as np
+from numpy.random import Generator, MT19937
+import sys
+import time
+np.seterr(all='raise')
 
 class swarm:
     # arguments should take form: 
-    # swarm(int, [[float, float, ...]], 
-    # [[float, float, ...]], [[float, ...]], 
-    # float, int, [[float, ...]], float, 
-    # float, int, int, func) 
+    # swarm(int, [[float, float, ...]], [[float, float, ...]], 
+    # [[float, ...]], float, int, [[float, ...]], 
+    # float, int, int, func, func) 
     # int boundary 1 = random,      2 = reflecting
     #              3 = absorbing,   4 = invisible
     def __init__(self, NO_OF_PARTICLES, lbound, ubound,
                  weights, vlimit, output_size, targets,
-                 T_MOD, E_TOL, maxit, boundary, obj_func,
-                 constr_func, parent=None, detailedWarnings=False):  
+                 E_TOL, maxit, boundary, 
+                 obj_func, constr_func, 
+                 parent=None, detailedWarnings=False):  
         
         # Optional parent class func call to write out values that trigger constraint issues
         self.parent = parent 
         # Additional output for advanced debugging to TERMINAL. 
-        # Some of these messages will be returned via debugTigger
+        # Some of these messages will be returned via debug
         self.detailedWarnings = detailedWarnings 
 
+        # optimizer init:
         heightl = np.shape(lbound)[0]
         widthl = np.shape(lbound)[1]
         heightu = np.shape(ubound)[0]
@@ -81,14 +80,11 @@ class swarm:
             variation = ubound-lbound
 
 
-
             self.M = np.array(np.multiply(self.rng.random((1,np.max([heightl, widthl]))), 
                                                                 variation)+lbound)    
 
-
             self.V = np.array(np.multiply(self.rng.random((1,np.max([heightl,widthl]))), 
                                                                      vlimit))
-
 
             for i in range(2,int(NO_OF_PARTICLES)+1):
                 
@@ -113,7 +109,6 @@ class swarm:
             self.F_Pb                   : Fitness value corresponding to the personal best position for each particle.
             self.weights                : Weights for the optimization process.
             self.targets                : Target values for the optimization process.
-            self.T_MOD                  : Time modulation parameter            
             self.maxit                  : Maximum number of iterations.
             self.E_TOL                  : Error tolerance.
             self.obj_func               : Objective function to be optimized.      
@@ -127,9 +122,8 @@ class swarm:
             self.Fvals                  : List to store fitness values.
             self.vlimit                 : Velocity limits for the particles.
             self.Mlast                  : Last location of particle
-            self.InitDeviation          : Initial deviation of particles.
-            self.delta_t                : static time modulation. retained for comparison to original repo. and swarm export
             '''
+
             self.output_size = output_size
             self.Active = np.ones((NO_OF_PARTICLES))                        
             self.Gb = sys.maxsize*np.ones((1,np.max([heightl, widthl])))   
@@ -138,7 +132,6 @@ class swarm:
             self.F_Pb = sys.maxsize*np.ones((NO_OF_PARTICLES,output_size))  
             self.weights = np.array(weights)                     
             self.targets = np.array(targets)                     
-            self.T_MOD = T_MOD                                                        
             self.maxit = maxit                                             
             self.E_TOL = E_TOL                                              
             self.obj_func = obj_func                                             
@@ -152,8 +145,6 @@ class swarm:
             self.Fvals = []                                                 
             self.vlimit = vlimit                                            
             self.Mlast = 1*self.ubound                                      
-            self.InitDeviation = self.absolute_mean_deviation_of_particles()
-            self.delta_t = 1   # keep for swarm export format                                             
 
             self.error_message_generator("swarm successfully initialized")
             
@@ -163,7 +154,7 @@ class swarm:
             # call the objective function. If there's an issue with the function execution, 'noError' returns False
             newFVals, noError = self.obj_func(self.M[self.current_particle], self.output_size)
             if noError == True:
-                self.Fvals = newFVals
+                self.Fvals = np.array(newFVals).reshape(1,-1)
                 if allow_update:
                     self.Flist = abs(self.targets - self.Fvals)
                     self.iter = self.iter + 1
@@ -173,7 +164,8 @@ class swarm:
             return noError# return is for error reporting purposes only
     
     def update_velocity(self,particle):
-        for i in range(0,np.shape(self.V)[1]):                      
+        for i in range(0,np.shape(self.V)[1]):        
+
             self.V[particle,i] = \
                 self.weights[0][0]* self.rng.random()*self.V[particle,i] \
                 + self.weights[0][1]*self.rng.random()*(self.Pb[particle,i]-self.M[particle,i]) \
@@ -187,25 +179,14 @@ class swarm:
                 update = i+1        
         return update
 
-    def validate_obj_function(self, particle):
-        # checks the the objective function resolves with the current particle.
-        # It is possible (and likely) that obj funcs without proper error handling
-        # will throw over/underflow errors.
-        # e.g.: numpy does not support float128()
-        newFVals, noError = self.obj_func(particle, self.output_size)
-        if noError == False:
-            #print("!!!!")
-            pass
-        return noError
-
     def random_bound(self, particle):
         # If particle is out of bounds, bring the particle back in bounds
         # The first condition checks if constraints are met, 
-        # and the second determins if the values are to large (positive or negitive)
+        # and the second determines if the values are to large (positive or negative)
         # and may cause a buffer overflow with large exponents (a bug that was found experimentally)
-        update = self.check_bounds(particle) or not self.constr_func(self.M[particle]) or not self.validate_obj_function(np.hstack(self.M[self.current_particle]))
+        update = self.check_bounds(particle) or not self.constr_func(self.M[particle])
         if update > 0:
-            while(self.check_bounds(particle)>0) or (self.constr_func(self.M[particle])==False) or (self.validate_obj_function(self.M[particle])==False): 
+            while(self.check_bounds(particle)>0) or (self.constr_func(self.M[particle])==False):
                 variation = self.ubound-self.lbound
                 self.M[particle] = \
                     np.squeeze(self.rng.random() * 
@@ -232,7 +213,7 @@ class swarm:
             self.random_bound(particle)
 
     def invisible_bound(self, particle):
-        update = self.check_bounds(particle) or not self.constr_func(self.M[particle]) or not self.validate_obj_function(self.M[particle])
+        update = self.check_bounds(particle) or not self.constr_func(self.M[particle])
         if update > 0:
             self.Active[particle] = 0  
         else:
@@ -254,7 +235,7 @@ class swarm:
 
         if np.linalg.norm(Flist) < np.linalg.norm(self.F_Gb):
             self.F_Gb = np.array([Flist])
-            self.Gb = np.array(self.M[particle])
+            self.Gb = np.array(self.M[particle]) # stays 1D on update because of math happening later
         
         if np.linalg.norm(Flist) < np.linalg.norm(self.F_Pb[particle]):
             self.F_Pb[particle] = np.squeeze(Flist)
@@ -263,7 +244,7 @@ class swarm:
     def update_point(self,particle):
         self.Mlast = 1*self.M[particle]
         self.V[particle] = self.floating_point_error_handler("self.V[particle] ", self.V[particle] )        
-        self.M[particle] = self.M[particle] + self.delta_t*self.V[particle]
+        self.M[particle] = self.M[particle] + self.V[particle]
 
     def converged(self):
         convergence = np.linalg.norm(self.F_Gb) < self.E_TOL
@@ -288,8 +269,6 @@ class swarm:
                 str(self.V[self.current_particle]) +"\n" + \
                 "Current Particle Location\n" + \
                 str(self.M[self.current_particle]) +"\n" + \
-                "Delta T\n" + \
-                str(self.delta_t) +"\n" + \
                 "Absolute mean deviation\n" + \
                 str(self.absolute_mean_deviation_of_particles()) +"\n" + \
                 "-----------------------------"
@@ -303,15 +282,16 @@ class swarm:
                 self.update_point(self.current_particle)
                 self.handle_bounds(self.current_particle)
             self.current_particle = self.current_particle + 1
+
             if self.current_particle == self.number_of_particles:
                 self.current_particle = 0
+
             if self.complete() and not suppress_output:
-                msg =  "\nPoints: \n" + str(self.Gb) + "\n" + \
+                msg = "\nOPTIMIZATION COMPLETE:\nPoints: \n" + str(self.Gb) + "\n" + \
                     "Iterations: \n" + str(self.iter) + "\n" + \
                     "Flist: \n" + str(self.F_Gb) + "\n" + \
                     "Norm Flist: \n" + str(np.linalg.norm(self.F_Gb)) + "\n"
                 self.error_message_generator(msg)
-
 
 
     def export_swarm(self):
@@ -325,11 +305,9 @@ class swarm:
                         'F_Pb': self.F_Pb,
                         'weights': self.weights,
                         'targets': self.targets,
-                        'T_MOD': self.T_MOD,
                         'maxit': self.maxit,
                         'E_TOL': self.E_TOL,
                         'iter': self.iter,
-                        'delta_t': self.delta_t,
                         'current_particle': self.current_particle,
                         'number_of_particles': self.number_of_particles,
                         'allow_update': self.allow_update,
@@ -352,11 +330,9 @@ class swarm:
         self.F_Pb = swarm_export['F_Pb'] 
         self.weights = swarm_export['weights'] 
         self.targets = swarm_export['targets'] 
-        self.T_MOD = swarm_export['T_MOD'] 
         self.maxit = swarm_export['maxit'] 
         self.E_TOL = swarm_export['E_TOL'] 
         self.iter = swarm_export['iter'] 
-        self.delta_t = swarm_export['delta_t'] 
         self.current_particle = swarm_export['current_particle'] 
         self.number_of_particles = swarm_export['number_of_particles'] 
         self.allow_update = swarm_export['allow_update'] 
@@ -390,14 +366,15 @@ class swarm:
         abs_mean_dev = np.linalg.norm(np.mean(abs_data,axis=0))
         return abs_mean_dev
 
-
     def floating_point_error_handler(self, varName, varValue):
         # function added to handle floating point errors caused by user input variations
-        # buffer overflows happen when t_mod, vlim, and the weights are all high
-        # buffer underflows happen when t_mod, vlim, and the weights are all low
+        # longer than it has to be for explicit print out messages + modification
+
+        # buffer overflows happen when vlim, and the weights are all high
+        # buffer underflows happen when vlim, and the weights are all low
         # other combinations may cause either issue, but these have been found experimentally
 
-        # constr_buffer.py or constr_F.py may be more strict depending on the function
+        # constr_buffer.py or constr_F.py may be stricter depending on the function
         # this is the limit for the optimizer, not the objective function.
 
         # this function applies a max or min cap to the passed variable
@@ -447,3 +424,4 @@ class swarm:
             print(msg)
         else:
             self.parent.debug_message_printout(msg)
+

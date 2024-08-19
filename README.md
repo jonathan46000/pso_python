@@ -65,7 +65,7 @@ Some updates have not incorporated appropriate handling for all boundary conditi
 The no preference method of multi-objective optimization, but a Pareto Front is not calculated. Instead, the best choice (smallest norm of output vectors) is listed as the output.
 
 ### Objective Function Handling
-The optimizer minimizes the absolute value of the difference from the target outputs and the evaluated outputs. Future versions may include options for function minimization absent target values. 
+The optimizer minimizes the absolute value of the difference of the target outputs and the evaluated outputs. Future versions may include options for function minimization when target values are absent. 
 
 #### Internal Objective Function Example
 
@@ -83,9 +83,9 @@ Each function has four files in a directory:
 Other multi-objective functions can be applied to this project by following the same format (and several have been collected into a compatible library, and will be released in a separate repo)
 
 <p align="center">
-        <img src="https://github.com/LC-Linkous/pso_python/blob/pso_basic/media/himmelblau_plots.png" alt="Himmelblau function" height="250">
+        <img src="https://github.com/LC-Linkous/pso_python/blob/pso_basic/media/himmelblau_plots.png" alt="Himmelblau’s function" height="250">
 </p>
-   <p align="center">Plotted Himmelblau Function with 3D Plot on the Left, and a 2D Contour on the Right</p>
+   <p align="center">Plotted Himmelblau’s Function with 3D Plot on the Left, and a 2D Contour on the Right</p>
 
 ```math
 f(x, y) = (x^2 + y - 11)^2 + (x + y^2 - 7)^2
@@ -97,7 +97,6 @@ f(x, y) = (x^2 + y - 11)^2 + (x + y^2 - 7)^2
 | f(-2.805118, 3.121212) = 0  | $-5 \leq x,y \leq 5$  |   | 
 | f(-3.779310, -3.283186) = 0 | $-5 \leq x,y \leq 5$  |   | 
 | f(3.584428, -1.848126) = 0  | $-5 \leq x,y \leq 5$   |   | 
-
 
 
 <p align="center">
@@ -117,7 +116,6 @@ f_{2}(\mathbf{x}) = (x_3-0.2)^4
 |----------|----------|----------|
 | 3      | $0.21\leq x_1\leq 1$ <br> $0\leq x_2\leq 1$ <br> $0.1 \leq x_3\leq 0.5$  | $x_3\gt \frac{x_1}{2}$ or $x_3\lt 0.1$| 
 
-
 <p align="center">
         <img src="https://github.com/LC-Linkous/pso_python/blob/pso_basic/media/1D_test_plots.png" alt="Function Feasible Decision Space and Objective Space with Pareto Front" height="200">
 </p>
@@ -133,14 +131,6 @@ f(\mathbf{x}) = sin(5 * x^3) + cos(5 * x) * (1 - tanh(x^2))
 Local minima at $(0.444453, -0.0630916)$
 
 Global minima at $(0.974857, -0.954872)$
-
-
-## Error Handling
-
-In the particle_swarm.py class, the objective function is called twice. Some optimizer/objective function/parameter combinations cause under/overflows when using numpy. It is a known bug in numpy that as of 5/2024 basic numpy cannot convert floats to longFloats or float128().
-
- * 1) When the constraints are called to verify if the particle is in bounds, and to apply the selected boundary method. At this point, the 'noErrors' boolean is used to confirm if the objection function resolves. If the objective function does not resolve, or the particle is out of bounds, the boundary conditions are applied.
- * 2) To evaluate the objective function as part of the traditional particle swarm algorithm
 
 ## Example Implementations
 
@@ -172,4 +162,5 @@ Publications featuring the code in this repo will be added as they become public
 ## Licensing
 
 The code in this repository has been released under GPL-2.0
+
 

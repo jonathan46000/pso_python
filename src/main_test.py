@@ -10,7 +10,7 @@
 #       for integration in the AntennaCAT GUI.
 #
 #   Author(s): Jonathan Lundquist, Lauren Linkous
-#   Last update: June 14, 2024 
+#   Last update: August 18, 2024
 ##--------------------------------------------------------------------\
 
 
@@ -24,12 +24,11 @@ import lundquist_3_var.configs_F as func_configs     # multi objective function
 
 if __name__ == "__main__":
     # Constant variables
-    NO_OF_PARTICLES = 50         # Number of particles in swarm
-    T_MOD = 0.65                 # Variable time-step extinction coefficient
-    E_TOL = 10 ** -6             # Convergence Tolerance
-    MAXIT = 5000                 # Maximum allowed iterations
+    NO_OF_PARTICLES = 11         # Number of particles in swarm
+    E_TOL = 10 ** -18            # Convergence Tolerance
+    MAXIT = 10000                # Maximum allowed iterations
     BOUNDARY = 1                 # int boundary 1 = random,      2 = reflecting
-                                    #              3 = absorbing,   4 = invisible
+                                 #              3 = absorbing,   4 = invisible
 
 
     # Objective function dependent variables
@@ -42,8 +41,8 @@ if __name__ == "__main__":
     TARGETS = func_configs.TARGETS    # Target values for output
 
     # optimizer constants
-    WEIGHTS = [[0.7, 1.5, 0.5]]       # Update vector weights
-    VLIM = 0.5                        # Initial velocity limit
+    WEIGHTS = [[0.5, 0.7, 0.78]]       # Update vector weights
+    VLIM = 1                           # Initial velocity limit
 
 
     best_eval = 1
@@ -58,7 +57,7 @@ if __name__ == "__main__":
 
     mySwarm = swarm(NO_OF_PARTICLES, LB, UB,
                     WEIGHTS, VLIM, OUT_VARS, TARGETS,
-                    T_MOD, E_TOL, MAXIT, BOUNDARY, func_F, constr_F)  
+                    E_TOL, MAXIT, BOUNDARY, func_F, constr_F)  
 
     # instantiation of particle swarm optimizer 
     while not mySwarm.complete():
