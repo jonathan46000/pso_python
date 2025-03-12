@@ -25,8 +25,7 @@ class swarm:
     # swarm([[float, float, ...]], [[float, float, ...]], [[float, ...]], float, int,
     # func, func,
     # dataFrame,
-    # class obj, bool,
-    # bool, class obj) 
+    # class obj) 
     #  
     # opt_df contains class-specific tuning parameters
     # NO_OF_PARTICLES: int
