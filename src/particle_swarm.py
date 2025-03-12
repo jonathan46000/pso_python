@@ -10,39 +10,42 @@
 #       
 #
 #   Author(s):  Lauren Linkous, Jonathan Lundquist
-#   Last update: August 18, 2024
+#   Last update: March 12, 2025
 ##--------------------------------------------------------------------\
 
 import numpy as np
 from numpy.random import Generator, MT19937
 import sys
-import time
-np.seterr(all='raise')
-
-import numpy as np
-from numpy.random import Generator, MT19937
-import sys
-import time
 np.seterr(all='raise')
 
 class swarm:
     # arguments should take form: 
-    # swarm(int, [[float, float, ...]], [[float, float, ...]], 
-    # [[float, ...]], float, int, [[float, ...]], 
-    # float, int, int, func, func) 
-    # int boundary 1 = random,      2 = reflecting
-    #              3 = absorbing,   4 = invisible
-    def __init__(self, NO_OF_PARTICLES, lbound, ubound,
-                 weights, vlimit, output_size, targets,
-                 E_TOL, maxit, boundary, 
+    # swarm([[float, float, ...]], [[float, float, ...]], [[float, ...]], float, int,
+    # func, func,
+    # dataFrame,
+    # class obj) 
+    #  
+    # opt_df contains class-specific tuning parameters
+    # NO_OF_PARTICLES: int
+    # weights: [[float, float, float]]
+    # boundary: int. 1 = random, 2 = reflecting, 3 = absorbing,   4 = invisible
+    # vlim: float
+    # 
+   
+    def __init__(self,  lbound, ubound, targets, E_TOL, maxit,
                  obj_func, constr_func, 
-                 parent=None, detailedWarnings=False):  
-        
+                 opt_df,
+                 parent=None): 
+
         # Optional parent class func call to write out values that trigger constraint issues
         self.parent = parent 
-        # Additional output for advanced debugging to TERMINAL. 
-        # Some of these messages will be returned via debug
-        self.detailedWarnings = detailedWarnings 
+
+        #unpack the opt_df standardized vals
+        NO_OF_PARTICLES = opt_df['NO_OF_PARTICLES'][0]
+        weights = opt_df['WEIGHTS'][0]
+        boundary = opt_df['BOUNDARY'][0]
+        vlimit = opt_df['VLIM'][0]
+
 
         # optimizer init:
         heightl = np.shape(lbound)[0]
@@ -63,8 +66,7 @@ class swarm:
             if self.parent == None:
                 pass
             else:
-                self.parent.record_params()
-                self.parent.debug_message_printout("Error lbound and ubound must be 1xN-dimensional \
+                self.parent.error_message_generator("Error lbound and ubound must be 1xN-dimensional \
                                                         arrays  with the same length")
            
         else:
@@ -124,14 +126,14 @@ class swarm:
             self.Mlast                  : Last location of particle
             '''
 
-            self.output_size = output_size
+            self.output_size = len(targets)
             self.Active = np.ones((NO_OF_PARTICLES))                        
             self.Gb = sys.maxsize*np.ones((1,np.max([heightl, widthl])))   
-            self.F_Gb = sys.maxsize*np.ones((1,output_size))                
+            self.F_Gb = sys.maxsize*np.ones((1,self.output_size))                
             self.Pb = sys.maxsize*np.ones(np.shape(self.M))                 
-            self.F_Pb = sys.maxsize*np.ones((NO_OF_PARTICLES,output_size))  
+            self.F_Pb = sys.maxsize*np.ones((NO_OF_PARTICLES,self.output_size))  
             self.weights = np.array(weights)                     
-            self.targets = np.array(targets)                     
+            self.targets = np.array(targets).reshape(-1, 1)                      
             self.maxit = maxit                                             
             self.E_TOL = E_TOL                                              
             self.obj_func = obj_func                                             
@@ -147,14 +149,13 @@ class swarm:
             self.Mlast = 1*self.ubound                                      
 
             self.error_message_generator("swarm successfully initialized")
-            
 
     def call_objective(self, allow_update):
         if self.Active[self.current_particle]:
             # call the objective function. If there's an issue with the function execution, 'noError' returns False
             newFVals, noError = self.obj_func(self.M[self.current_particle], self.output_size)
             if noError == True:
-                self.Fvals = np.array(newFVals).reshape(1,-1)
+                self.Fvals = np.array(newFVals).reshape(-1, 1)
                 if allow_update:
                     self.Flist = abs(self.targets - self.Fvals)
                     self.iter = self.iter + 1
@@ -286,6 +287,7 @@ class swarm:
             if self.current_particle == self.number_of_particles:
                 self.current_particle = 0
 
+
             if self.complete() and not suppress_output:
                 msg = "\nOPTIMIZATION COMPLETE:\nPoints: \n" + str(self.Gb) + "\n" + \
                     "Iterations: \n" + str(self.iter) + "\n" + \
@@ -297,16 +299,17 @@ class swarm:
     def export_swarm(self):
         swarm_export = {'lbound': self.lbound,
                         'ubound': self.ubound,
+                        'targets': self.targets,
+                        'E_TOL': self.E_TOL,
+                        'maxit': self.maxit,                                                
                         'M': self.M,
                         'V': self.V,
+                        'output_size': self.output_size,
                         'Gb': self.Gb,
                         'F_Gb': self.F_Gb,
                         'Pb': self.Pb,
                         'F_Pb': self.F_Pb,
-                        'weights': self.weights,
-                        'targets': self.targets,
-                        'maxit': self.maxit,
-                        'E_TOL': self.E_TOL,
+                        'weights': self.weights,                        
                         'iter': self.iter,
                         'current_particle': self.current_particle,
                         'number_of_particles': self.number_of_particles,
@@ -315,11 +318,11 @@ class swarm:
                         'Fvals': self.Fvals,
                         'Active': self.Active,
                         'Boundary': self.boundary,
-                        'Mlast': self.Mlast}
-        
+                        'Mlast': self.Mlast,
+                        'vlimit': self.vlimit}
         return swarm_export
 
-    def import_swarm(self, swarm_export, obj_func):
+    def import_swarm(self, swarm_export, obj_func, constr_func):
         self.lbound = swarm_export['lbound'] 
         self.ubound = swarm_export['ubound'] 
         self.M = swarm_export['M'] 
@@ -341,7 +344,10 @@ class swarm:
         self.Active = swarm_export['Active']
         self.boundary = swarm_export['Boundary']
         self.Mlast = swarm_export['Mlast']
+        self.vlimit = swarm_export['vlimit']
+        self.output_size = swarm_export['output_size']
         self.obj_func = obj_func 
+        self.constr_func = constr_func 
 
     def get_obj_inputs(self):
         return np.vstack(self.M[self.current_particle])
@@ -352,10 +358,10 @@ class swarm:
         return iteration, best_eval
         
     def get_optimized_soln(self):
-        return self.Gb 
+        return self.Gb.reshape(-1, 1) #standardization 
     
     def get_optimized_outs(self):
-        return self.F_Gb
+        return self.F_Gb[0] #correction for extra brackets that happen with the math/passing
     
     def absolute_mean_deviation_of_particles(self):
         mean_data = np.array(np.mean(self.M, axis=0)).reshape(1, -1)
@@ -381,41 +387,14 @@ class swarm:
         capValue = varValue 
 
         if type(varValue) == np.ndarray:
-            for idx in range(0, len(varValue)): 
-                if varValue[idx] == 0:
-                    pass
-                elif abs(varValue[idx]) > 1e100:
-                    varValue[idx] = 1e100*np.sign(varValue[idx])
-                    if self.detailedWarnings == True:
-                        msg = ("WARNING: " + str(varName) + " item " + str(idx) + "  is " + str(varValue[idx]) + ". using max exp cap")
-                        self.error_message_generator(msg)
-                        msg = ("WARNING: your ants are at risk of leaving the farm")  
-                        self.error_message_generator(msg)
-
-                elif abs(varValue[idx]) < 1e-100:
-                    varValue[idx]=1e-100*np.sign(varValue[idx])
-                    if self.detailedWarnings == True:
-                        msg = ("WARNING: " + str(varName) + " item " + str(idx) + "  is " + str(varValue[idx]) + ". using min exp cap")
-                        self.error_message_generator(msg)
-                        msg = ("WARNING: your ants are at risk of leaving the farm")  
-                        self.error_message_generator(msg)
+            capValue = np.clip(varValue, 1e-50, 1e50)
         else:
             if varValue == 0:
                 pass
-            elif abs(varValue) > 1e100:
-                capValue = 1e100*np.sign(varValue)
-                if self.detailedWarnings == True:
-                    msg = ("WARNING: " + str(varName) + " is " + str(varValue) + ". using max exp cap")
-                    self.error_message_generator(msg)
-                    msg = ("WARNING: your ants are at risk of leaving the farm")  
-                    self.error_message_generator(msg)
-            elif abs(varValue) < 1e-100:
-                capValue = 1e-100*np.sign(varValue)
-                if self.detailedWarnings == True:
-                    msg = ("WARNING: " + str(varName) + " is " + str(varValue) + ". using min exp cap")
-                    self.error_message_generator(msg)
-                    msg = ("WARNING: your ants are at risk of leaving the farm")  
-                    self.error_message_generator(msg)  
+            elif abs(varValue) > 1e50:
+                capValue = 1e50*np.sign(varValue)
+            elif abs(varValue) < 1e-50:
+                capValue = 1e-50*np.sign(varValue)
 
         return capValue
 

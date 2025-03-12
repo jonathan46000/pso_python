@@ -12,11 +12,12 @@
 #       matplotlib plot of particle location
 #
 #   Author(s): Lauren Linkous, Jonathan Lundquist
-#   Last update: August 18, 2024
+#   Last update: March 12, 2025
 ##--------------------------------------------------------------------\
 
 
 import numpy as np
+import pandas as pd
 import time
 import matplotlib.pyplot as plt
 from particle_swarm import swarm
@@ -35,61 +36,49 @@ class TestGraph():
         self.ctr = 0
 
         # Constant variables
-        NO_OF_PARTICLES = 50         # Number of particles in swarm
-        E_TOL = 10 ** -12            # Convergence Tolerance
-        MAXIT = 5000                 # Maximum allowed iterations
+        NO_OF_PARTICLES = 11         # Number of particles in swarm
+        TOL = 10 ** -18              # Convergence Tolerance
+        MAXIT = 10000                # Maximum allowed iterations
         BOUNDARY = 1                 # int boundary 1 = random,      2 = reflecting
-                                     #              3 = absorbing,   4 = invisible
-        
-        # Objective function dependent variables
-        LB = func_configs.LB                    # Lower boundaries, [[0.21, 0, 0.1]]
-        UB = func_configs.UB                    # Upper boundaries, [[1, 1, 0.5]]
-        IN_VARS = func_configs.IN_VARS          # Number of input variables (x-values)   
-        OUT_VARS = func_configs.OUT_VARS        # Number of output variables (y-values)
-        TARGETS = func_configs.TARGETS          # Target values for output
+                                    #              3 = absorbing,   4 = invisible
 
         # Objective function dependent variables
         func_F = func_configs.OBJECTIVE_FUNC  # objective function
         constr_F = func_configs.CONSTR_FUNC   # constraint function
 
+        LB = func_configs.LB              # Lower boundaries, [[0.21, 0, 0.1]]
+        UB = func_configs.UB              # Upper boundaries, [[1, 1, 0.5]]   
+        OUT_VARS = func_configs.OUT_VARS  # Number of output variables (y-values)
+        TARGETS = func_configs.TARGETS    # Target values for output
 
-        # optimizer specific vars
         # optimizer constants
-        WEIGHTS = [[0.7, 1.5, 0.5]]       # Update vector weights
-        VLIM = 0.5                        # Initial velocity limit
+        WEIGHTS = [[0.5, 0.7, 0.78]]       # Update vector weights
+        VLIM = 1                           # Initial velocity limit
 
 
-        # Swarm setting values
-        parent = self                   # Optional parent class for swarm 
-                                        # (Used for passing debug messages or
-                                        # other information that will appear 
-                                        # in GUI panels)
-
-        detailedWarnings = False        # Optional boolean for detailed feedback
-
-
-        # Swarm vars
-        self.best_eval = 1            # Starting eval value
-
-        parent = self                 # Optional parent class for swarm 
-                                        # (Used for passing debug messages or
-                                        # other information that will appear 
-                                        # in GUI panels)
-
+        self.best_eval = 1
+        parent = self                 # for passing debug back to the parent class
         self.suppress_output = True   # Suppress the console output of particle swarm
-
-        detailedWarnings = False      # Optional boolean for detailed feedback
-                                        # (Independent of suppress output. 
-                                        #  Includes error messages and warnings)
-
         self.allow_update = True      # Allow objective call to update state 
 
 
+        # Constant variables in a list format
+        opt_params = {'NO_OF_PARTICLES': [NO_OF_PARTICLES], # Number of particles in swarm
+                    'BOUNDARY': [BOUNDARY],                 # int boundary 1 = random,      2 = reflecting
+                                                            #   3 = absorbing,   4 = invisible
+                    'WEIGHTS': [WEIGHTS],                   # Update vector weights
+                    'VLIM':  [VLIM] }                       # Initial velocity limit
+
+        # dataframe conversion
+        opt_df = pd.DataFrame(opt_params)
+
+        # optimizer initialization
+        self.myOptimizer = swarm(LB, UB, TARGETS, TOL, MAXIT,
+                                func_F, constr_F,
+                                opt_df,
+                                parent=parent)  
 
 
-        self.mySwarm = swarm(NO_OF_PARTICLES, LB, UB,
-                        WEIGHTS, VLIM, OUT_VARS, TARGETS,
-                        E_TOL, MAXIT, BOUNDARY, func_F, constr_F, parent, detailedWarnings)  
 
 
         # Matplotlib setup
@@ -201,16 +190,16 @@ class TestGraph():
 
     def run(self):
         # instantiation of particle swarm optimizer 
-        while not self.mySwarm.complete():
+        while not self.myOptimizer.complete():
 
             # step through optimizer processing
-            self.mySwarm.step(self.suppress_output)
+            self.myOptimizer.step(self.suppress_output)
 
             # call the objective function, control 
             # when it is allowed to update and return 
             # control to optimizer
-            self.mySwarm.call_objective(self.allow_update)
-            iter, eval = self.mySwarm.get_convergence_data()
+            self.myOptimizer.call_objective(self.allow_update)
+            iter, eval = self.myOptimizer.get_convergence_data()
             if (eval < self.best_eval) and (eval != 0):
                 self.best_eval = eval
             if self.suppress_output:
@@ -219,14 +208,14 @@ class TestGraph():
                     print(iter)
                     print("Best Eval")
                     print(self.best_eval)
-            m_coords = self.mySwarm.M  #get x,y,z coordinate locations
-            f_coords = self.mySwarm.F_Gb # global best of set
+            m_coords = self.myOptimizer.M  #get x,y,z coordinate locations
+            f_coords = self.myOptimizer.F_Gb # global best of set
             self.update_plot(m_coords, f_coords, self.targets, showTarget=True, clearAx=True) #update matplot
 
         print("Optimized Solution")
-        print(self.mySwarm.get_optimized_soln())
+        print(self.myOptimizer.get_optimized_soln())
         print("Optimized Outputs")
-        print(self.mySwarm.get_optimized_outs())
+        print(self.myOptimizer.get_optimized_outs())
 
 
         print("Optimization ended. Figure closing in 15 seconds.")

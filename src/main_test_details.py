@@ -10,11 +10,11 @@
 #       for integration in the AntennaCAT GUI.
 #
 #   Author(s): Lauren Linkous, Jonathan Lundquist
-#   Last update: August 18, 2024
+#   Last update: March 12, 2025
 ##--------------------------------------------------------------------\
 
 
-import numpy as np
+import pandas as pd
 import time
 from particle_swarm import swarm
 
@@ -29,12 +29,11 @@ import lundquist_3_var.configs_F as func_configs     # multi objective function
 class TestDetails():
     def __init__(self):
         # Constant variables
-        NO_OF_PARTICLES = 50         # Number of particles in swarm
-        E_TOL = 10 ** -6             # Convergence Tolerance
-        MAXIT = 5000                 # Maximum allowed iterations
+        NO_OF_PARTICLES = 11         # Number of particles in swarm
+        TOL = 10 ** -18              # Convergence Tolerance
+        MAXIT = 10000                # Maximum allowed iterations
         BOUNDARY = 1                 # int boundary 1 = random,      2 = reflecting
-                                     #              3 = absorbing,   4 = invisible
-
+                                    #              3 = absorbing,   4 = invisible
 
         # Objective function dependent variables
         func_F = func_configs.OBJECTIVE_FUNC  # objective function
@@ -46,42 +45,31 @@ class TestDetails():
         TARGETS = func_configs.TARGETS    # Target values for output
 
         # optimizer constants
-        WEIGHTS = [[0.7, 1.5, 0.5]]       # Update vector weights
-        VLIM = 0.5                        # Initial velocity limit
+        WEIGHTS = [[0.5, 0.7, 0.78]]       # Update vector weights
+        VLIM = 1                           # Initial velocity limit
 
 
-        # Swarm setting values
-        parent = self                   # Optional parent class for swarm 
-                                        # (Used for passing debug messages or
-                                        # other information that will appear 
-                                        # in GUI panels)
-
-        detailedWarnings = False      # Optional boolean for detailed feedback
-
-
-        # Swarm vars
-        self.best_eval = 1            # Starting eval value
-
-        parent = self                 # Optional parent class for swarm 
-                                        # (Used for passing debug messages or
-                                        # other information that will appear 
-                                        # in GUI panels)
-
+        self.best_eval = 1
+        parent = self                 # for passing debug back to the parent class
         self.suppress_output = True   # Suppress the console output of particle swarm
-
-        detailedWarnings = False      # Optional boolean for detailed feedback
-                                        # (Independent of suppress output. 
-                                        #  Includes error messages and warnings)
-
         self.allow_update = True      # Allow objective call to update state 
 
 
+        # Constant variables in a list format
+        opt_params = {'NO_OF_PARTICLES': [NO_OF_PARTICLES], # Number of particles in swarm
+                    'BOUNDARY': [BOUNDARY],                 # int boundary 1 = random,      2 = reflecting
+                                                            #   3 = absorbing,   4 = invisible
+                    'WEIGHTS': [WEIGHTS],                   # Update vector weights
+                    'VLIM':  [VLIM] }                       # Initial velocity limit
 
+        # dataframe conversion
+        opt_df = pd.DataFrame(opt_params)
 
-        self.mySwarm = swarm(NO_OF_PARTICLES, LB, UB,
-                        WEIGHTS, VLIM, OUT_VARS, TARGETS,
-                        E_TOL, MAXIT, BOUNDARY, 
-                        func_F, constr_F, parent, detailedWarnings)  
+        # optimizer initialization
+        self.myOptimizer = swarm(LB, UB, TARGETS, TOL, MAXIT,
+                                func_F, constr_F,
+                                opt_df,
+                                parent=parent)  
 
 
     def debug_message_printout(self, txt):
@@ -96,16 +84,16 @@ class TestDetails():
     def run(self):
 
         # instantiation of particle swarm optimizer 
-        while not self.mySwarm.complete():
+        while not self.myOptimizer.complete():
 
             # step through optimizer processing
-            self.mySwarm.step(self.suppress_output)
+            self.myOptimizer.step(self.suppress_output)
 
             # call the objective function, control 
             # when it is allowed to update and return 
             # control to optimizer
-            self.mySwarm.call_objective(self.allow_update)
-            iter, eval = self.mySwarm.get_convergence_data()
+            self.myOptimizer.call_objective(self.allow_update)
+            iter, eval = self.myOptimizer.get_convergence_data()
             if (eval < self.best_eval) and (eval != 0):
                 self.best_eval = eval
             if self.suppress_output:
@@ -116,9 +104,9 @@ class TestDetails():
                     print(self.best_eval)
 
         print("Optimized Solution")
-        print(self.mySwarm.get_optimized_soln())
+        print(self.myOptimizer.get_optimized_soln())
         print("Optimized Outputs")
-        print(self.mySwarm.get_optimized_outs())
+        print(self.myOptimizer.get_optimized_outs())
 
 
 

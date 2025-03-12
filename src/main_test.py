@@ -10,9 +10,10 @@
 #       for integration in the AntennaCAT GUI.
 #
 #   Author(s): Jonathan Lundquist, Lauren Linkous
-#   Last update: August 18, 2024
+#   Last update: March 12, 2025
 ##--------------------------------------------------------------------\
 
+import pandas as pd
 
 from particle_swarm import swarm
 
@@ -25,11 +26,10 @@ import lundquist_3_var.configs_F as func_configs     # multi objective function
 if __name__ == "__main__":
     # Constant variables
     NO_OF_PARTICLES = 11         # Number of particles in swarm
-    E_TOL = 10 ** -18            # Convergence Tolerance
+    TOL = 10 ** -18              # Convergence Tolerance
     MAXIT = 10000                # Maximum allowed iterations
     BOUNDARY = 1                 # int boundary 1 = random,      2 = reflecting
                                  #              3 = absorbing,   4 = invisible
-
 
     # Objective function dependent variables
     func_F = func_configs.OBJECTIVE_FUNC  # objective function
@@ -46,34 +46,45 @@ if __name__ == "__main__":
 
 
     best_eval = 1
-
-    parent = None            # for the PSO_TEST ONLY
-
+    parent = None            # for the optimizer test ONLY
     suppress_output = True   # Suppress the console output of particle swarm
-
     allow_update = True      # Allow objective call to update state 
 
 
+    # Constant variables in a list format
+    opt_params = {'NO_OF_PARTICLES': [NO_OF_PARTICLES], # Number of particles in swarm
+                'BOUNDARY': [BOUNDARY],                 # int boundary 1 = random,      2 = reflecting
+                                                        #   3 = absorbing,   4 = invisible
+                'WEIGHTS': [WEIGHTS],                   # Update vector weights
+                'VLIM':  [VLIM] }                       # Initial velocity limit
 
-    mySwarm = swarm(NO_OF_PARTICLES, LB, UB,
-                    WEIGHTS, VLIM, OUT_VARS, TARGETS,
-                    E_TOL, MAXIT, BOUNDARY, func_F, constr_F)  
+    # dataframe conversion
+    opt_df = pd.DataFrame(opt_params)
 
-    # instantiation of particle swarm optimizer 
-    while not mySwarm.complete():
+    # optimizer initialization
+    myOptimizer = swarm(LB, UB, TARGETS, TOL, MAXIT,
+                            func_F, constr_F,
+                            opt_df,
+                            parent=parent)  
 
+    while not myOptimizer.complete():
         # step through optimizer processing
-        # update_velocity, will change the particle location
-        mySwarm.step(suppress_output)
-
+        # this will update particle or agent locations
+        myOptimizer.step(suppress_output)
         # call the objective function, control 
         # when it is allowed to update and return 
         # control to optimizer
-
-        mySwarm.call_objective(allow_update)
-        iter, eval = mySwarm.get_convergence_data()
+        myOptimizer.call_objective(allow_update)
+        # check the current progress of the optimizer
+        # iter: the number of objective function calls
+        # eval: current 'best' evaluation of the optimizer
+        iter, eval = myOptimizer.get_convergence_data()
         if (eval < best_eval) and (eval != 0):
             best_eval = eval
+        
+        # optional. if the optimizer is not printing out detailed 
+        # reports, preview by checking the iteration and best evaluation
+
         if suppress_output:
             if iter%100 ==0: #print out every 100th iteration update
                 print("Iteration")
@@ -82,6 +93,6 @@ if __name__ == "__main__":
                 print(best_eval)
 
     print("Optimized Solution")
-    print(mySwarm.get_optimized_soln())
+    print(myOptimizer.get_optimized_soln())
     print("Optimized Outputs")
-    print(mySwarm.get_optimized_outs())
+    print(myOptimizer.get_optimized_outs())
