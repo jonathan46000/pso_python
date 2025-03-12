@@ -119,7 +119,7 @@ This is an example for if you've had a difficult time with the requirements.txt 
     # swarm([[float, float, ...]], [[float, float, ...]], [[float, ...]], float, int,
     # func, func,
     # dataFrame,
-    # class obj, bool) 
+    # class obj) 
     #  
     # opt_df contains class-specific tuning parameters
     # NO_OF_PARTICLES: int
