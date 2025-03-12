@@ -66,7 +66,7 @@ class swarm:
             if self.parent == None:
                 pass
             else:
-                self.parent.error_message_generator("Error lbound and ubound must be 1xN-dimensional \
+                self.parent.debug_message_printout("Error lbound and ubound must be 1xN-dimensional \
                                                         arrays  with the same length")
            
         else:
@@ -148,7 +148,7 @@ class swarm:
             self.vlimit = vlimit                                            
             self.Mlast = 1*self.ubound                                      
 
-            self.error_message_generator("swarm successfully initialized")
+            self.debug_message_printout("swarm successfully initialized")
 
     def call_objective(self, allow_update):
         if self.Active[self.current_particle]:
@@ -230,7 +230,7 @@ class swarm:
         elif self.boundary == 4:
             self.invisible_bound(particle)
         else:
-            self.error_message_generator("Error: No boundary is set!")
+            self.debug_message_printout("Error: No boundary is set!")
 
     def check_global_local(self, Flist, particle):
 
@@ -273,7 +273,7 @@ class swarm:
                 "Absolute mean deviation\n" + \
                 str(self.absolute_mean_deviation_of_particles()) +"\n" + \
                 "-----------------------------"
-            self.error_message_generator(msg)
+            self.debug_message_printout(msg)
             
 
         if self.allow_update:
@@ -293,7 +293,7 @@ class swarm:
                     "Iterations: \n" + str(self.iter) + "\n" + \
                     "Flist: \n" + str(self.F_Gb) + "\n" + \
                     "Norm Flist: \n" + str(np.linalg.norm(self.F_Gb)) + "\n"
-                self.error_message_generator(msg)
+                self.debug_message_printout(msg)
 
 
     def export_swarm(self):
@@ -398,7 +398,7 @@ class swarm:
 
         return capValue
 
-    def error_message_generator(self, msg):
+    def debug_message_printout(self, msg):
         if self.parent == None:
             print(msg)
         else:
