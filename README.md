@@ -107,7 +107,7 @@ This is an example for if you've had a difficult time with the requirements.txt 
                             opt_df,
                             parent=parent)  
 
-    # arguments should take form: 
+    # arguments should take the form: 
     # swarm([[float, float, ...]], [[float, float, ...]], [[float, ...]], float, int,
     # func, func,
     # dataFrame,
