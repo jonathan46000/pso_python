@@ -386,17 +386,25 @@ class swarm:
         # this function applies a max or min cap to the passed variable
         capValue = varValue 
 
-        if type(varValue) == np.ndarray:
-            capValue = np.clip(varValue, 1e-50, 1e50)
+        # max cap: 10e50
+        # min cap: -10e50
+        # max number of decimals: 30
+
+
+        if type(varValue) == np.ndarray: 
+            # have to cycle through each val in array
+            for idx in range(0, len(varValue)): 
+                v = varValue[idx]
+                rounded = round(v, 25)
+                clipped = np.clip(rounded, -10e50, 10e50)
+                capValue[idx] = 1.0*clipped # ensure copy and float
         else:
-            if varValue == 0:
-                pass
-            elif abs(varValue) > 1e50:
-                capValue = 1e50*np.sign(varValue)
-            elif abs(varValue) < 1e-50:
-                capValue = 1e-50*np.sign(varValue)
+            rounded = round(varValue, 25)
+            clipped = np.clip(rounded, -10e50, 10e50)
+            capValue = 1.0*clipped # ensure copy and float
 
         return capValue
+
 
     def debug_message_printout(self, msg):
         if self.parent == None:
