@@ -407,7 +407,7 @@ class swarm:
 
         # max cap: 10e50
         # min cap: -10e50
-        # max number of decimals: 
+        # max number of decimals: 30
 
 
         if type(varValue) == np.ndarray: 
