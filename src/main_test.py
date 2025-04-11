@@ -10,11 +10,11 @@
 #       for integration in the AntennaCAT GUI.
 #
 #   Author(s): Jonathan Lundquist, Lauren Linkous
-#   Last update: March 12, 2025
+#   Last update: April 10, 2025
 ##--------------------------------------------------------------------\
 
 import pandas as pd
-
+import numpy as np
 from particle_swarm import swarm
 
 # OBJECTIVE FUNCTION SELECTION
@@ -40,15 +40,28 @@ if __name__ == "__main__":
     OUT_VARS = func_configs.OUT_VARS  # Number of output variables (y-values)
     TARGETS = func_configs.TARGETS    # Target values for output
 
+    # target format. TARGETS = [0, ...] 
+
+    # threshold is same dims as TARGETS
+    # 0 = use target value as actual target. value should EQUAL target
+    # 1 = use as threshold. value should be LESS THAN OR EQUAL to target
+    # 2 = use as threshold. value should be GREATER THAN OR EQUAL to target
+    #DEFAULT THRESHOLD
+    THRESHOLD = np.zeros_like(TARGETS) 
+    #THRESHOLD = np.ones_like(TARGETS)
+    #THRESHOLD = [0, 1, 0]
+
+
     # optimizer constants
     WEIGHTS = [[0.5, 0.7, 0.78]]       # Update vector weights
     VLIM = 1                           # Initial velocity limit
 
 
     best_eval = 1
-    parent = None            # for the optimizer test ONLY
-    suppress_output = True   # Suppress the console output of particle swarm
-    allow_update = True      # Allow objective call to update state 
+    parent = None             # for the optimizer test ONLY
+    evaluate_threshold = True # use target or threshold. True = THRESHOLD, False = EXACT TARGET
+    suppress_output = True    # Suppress the console output of particle swarm
+    allow_update = True       # Allow objective call to update state 
 
 
     # Constant variables in a list format
@@ -65,7 +78,8 @@ if __name__ == "__main__":
     myOptimizer = swarm(LB, UB, TARGETS, TOL, MAXIT,
                             func_F, constr_F,
                             opt_df,
-                            parent=parent)  
+                            parent=parent, 
+                            evaluate_threshold=evaluate_threshold, obj_threshold=THRESHOLD)  
 
     while not myOptimizer.complete():
         # step through optimizer processing
