@@ -20,7 +20,16 @@ from particle_swarm import swarm
 # OBJECTIVE FUNCTION SELECTION
 #import one_dim_x_test.configs_F as func_configs     # single objective, 1D input
 #import himmelblau.configs_F as func_configs         # single objective, 2D input
-import lundquist_3_var.configs_F as func_configs     # multi objective function
+#import lundquist_3_var.configs_F as func_configs     # multi objective function
+
+import circular_patch.configs_F as func_configs
+#import half_wave_dipole.configs_F as func_configs
+#import loop_antenna.configs_F as func_configs
+#import quarter_wave_monopole.configs_F as func_configs
+#import rectangular_loop.configs_F as func_configs
+#import rectangular_patch.configs_F as func_configs
+
+
 
 
 if __name__ == "__main__":
@@ -59,7 +68,7 @@ if __name__ == "__main__":
 
     best_eval = 1
     parent = None             # for the optimizer test ONLY
-    evaluate_threshold = True # use target or threshold. True = THRESHOLD, False = EXACT TARGET
+    evaluate_threshold = False # use target or threshold. True = THRESHOLD, False = EXACT TARGET
     suppress_output = True    # Suppress the console output of particle swarm
     allow_update = True       # Allow objective call to update state 
 
