@@ -12,7 +12,7 @@
 #       matplotlib plot of particle location
 #
 #   Author(s): Lauren Linkous, Jonathan Lundquist
-#   Last update: March 12, 2025
+#   Last update: April 10, 2025
 ##--------------------------------------------------------------------\
 
 
@@ -28,6 +28,8 @@ from particle_swarm import swarm
 #import one_dim_x_test.configs_F as func_configs     # single objective, 1D input
 #import himmelblau.configs_F as func_configs         # single objective, 2D input
 import lundquist_3_var.configs_F as func_configs     # multi objective function
+
+
 
 
 
@@ -51,16 +53,27 @@ class TestGraph():
         OUT_VARS = func_configs.OUT_VARS  # Number of output variables (y-values)
         TARGETS = func_configs.TARGETS    # Target values for output
 
+        # target format. TARGETS = [0, ...] 
+
+        # threshold is same dims as TARGETS
+        # 0 = use target value as actual target. value should EQUAL target
+        # 1 = use as threshold. value should be LESS THAN OR EQUAL to target
+        # 2 = use as threshold. value should be GREATER THAN OR EQUAL to target
+        #DEFAULT THRESHOLD
+        #THRESHOLD = np.zeros_like(TARGETS) 
+        THRESHOLD = np.array([0,1,0]) #np.ones_like(TARGETS)*2
+
+
         # optimizer constants
         WEIGHTS = [[0.5, 0.7, 0.78]]       # Update vector weights
         VLIM = 1                           # Initial velocity limit
 
 
         self.best_eval = 1
-        parent = self                 # for passing debug back to the parent class
-        self.suppress_output = True   # Suppress the console output of particle swarm
-        self.allow_update = True      # Allow objective call to update state 
-
+        parent = None             # for the optimizer test ONLY
+        evaluate_threshold = True # use target or threshold. True = THRESHOLD, False = EXACT TARGET
+        self.suppress_output = False    # Suppress the console output of particle swarm
+        self.allow_update = True       # Allow objective call to update state 
 
         # Constant variables in a list format
         opt_params = {'NO_OF_PARTICLES': [NO_OF_PARTICLES], # Number of particles in swarm
@@ -74,9 +87,10 @@ class TestGraph():
 
         # optimizer initialization
         self.myOptimizer = swarm(LB, UB, TARGETS, TOL, MAXIT,
-                                func_F, constr_F,
-                                opt_df,
-                                parent=parent)  
+                            func_F, constr_F,
+                            opt_df,
+                            parent=parent, 
+                            evaluate_threshold=evaluate_threshold, obj_threshold=THRESHOLD)
 
 
 
