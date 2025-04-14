@@ -14,7 +14,7 @@
 ##--------------------------------------------------------------------\
 
 import pandas as pd
-
+import numpy as np
 from particle_swarm import swarm
 
 # OBJECTIVE FUNCTION SELECTION
@@ -25,37 +25,45 @@ import lundquist_3_var.configs_F as func_configs     # multi objective function
 
 
 if __name__ == "__main__":
-
-
     # Constant variables
-    NO_OF_PARTICLES = 50         # Number of particles in swarm
+    NO_OF_PARTICLES = 11         # Number of particles in swarm
     T_MOD = 0.65                 # Variable time-step extinction coefficient
-    TOL = 10 ** -6               # Convergence Tolerance
-    MAXIT = 5000                 # Maximum allowed iterations
+    TOL = 10 ** -18              # Convergence Tolerance
+    MAXIT = 10000                # Maximum allowed iterations
     BOUNDARY = 1                 # int boundary 1 = random,      2 = reflecting
                                     #              3 = absorbing,   4 = invisible
-    WEIGHTS = [[0.7, 1.5, 0.5]]       # Update vector weights
-    VLIM = 0.5                        # Initial velocity limit
 
+    # Objective function dependent variables
+    func_F = func_configs.OBJECTIVE_FUNC  # objective function
+    constr_F = func_configs.CONSTR_FUNC   # constraint function
 
     LB = func_configs.LB              # Lower boundaries, [[0.21, 0, 0.1]]
     UB = func_configs.UB              # Upper boundaries, [[1, 1, 0.5]]   
     OUT_VARS = func_configs.OUT_VARS  # Number of output variables (y-values)
     TARGETS = func_configs.TARGETS    # Target values for output
 
+    # target format. TARGETS = [0, ...] 
 
-    # Objective function dependent variables
-    func_F = func_configs.OBJECTIVE_FUNC  # objective function
-    constr_F = func_configs.CONSTR_FUNC   # constraint function
+    # threshold is same dims as TARGETS
+    # 0 = use target value as actual target. value should EQUAL target
+    # 1 = use as threshold. value should be LESS THAN OR EQUAL to target
+    # 2 = use as threshold. value should be GREATER THAN OR EQUAL to target
+    #DEFAULT THRESHOLD
+    #THRESHOLD = np.zeros_like(TARGETS) 
+    THRESHOLD = np.ones_like(TARGETS)
+    #THRESHOLD = [0, 1, 0]
+
+
+    # optimizer constants
+    WEIGHTS = [[0.5, 0.7, 0.78]]       # Update vector weights
+    VLIM = 1                           # Initial velocity limit
 
 
     best_eval = 1
-
-    parent = None            # for the PSO_TEST ONLY
-
-    suppress_output = True   # Suppress the console output of particle swarm
-
-    allow_update = True      # Allow objective call to update state 
+    parent = None             # for the optimizer test ONLY
+    evaluate_threshold = True # use target or threshold. True = THRESHOLD, False = EXACT TARGET
+    suppress_output = True    # Suppress the console output of particle swarm
+    allow_update = True       # Allow objective call to update state 
 
 
     # Constant variables in a list format
@@ -64,8 +72,7 @@ if __name__ == "__main__":
                 'BOUNDARY': [BOUNDARY],                 # int boundary 1 = random,      2 = reflecting
                                                         #              3 = absorbing,   4 = invisible
                 'WEIGHTS': [WEIGHTS],                   # Update vector weights
-                'VLIM':  [VLIM] }                       # Initial velocity limit
-
+                'VLIM':  [VLIM] }     
     # dataframe conversion
     opt_df = pd.DataFrame(opt_params)
 
@@ -73,7 +80,8 @@ if __name__ == "__main__":
     myOptimizer = swarm(LB, UB, TARGETS, TOL, MAXIT,
                             func_F, constr_F,
                             opt_df,
-                            parent=parent)  
+                            parent=parent, 
+                            evaluate_threshold=evaluate_threshold, obj_threshold=THRESHOLD)  
 
     while not myOptimizer.complete():
         # step through optimizer processing

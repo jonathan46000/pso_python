@@ -51,6 +51,17 @@ class TestGraph():
         UB = func_configs.UB              # Upper boundaries, [[1, 1, 0.5]]   
         OUT_VARS = func_configs.OUT_VARS  # Number of output variables (y-values)
         TARGETS = func_configs.TARGETS    # Target values for output
+        # target format. TARGETS = [0, ...] 
+
+        # threshold is same dims as TARGETS
+        # 0 = use target value as actual target. value should EQUAL target
+        # 1 = use as threshold. value should be LESS THAN OR EQUAL to target
+        # 2 = use as threshold. value should be GREATER THAN OR EQUAL to target
+        #DEFAULT THRESHOLD
+        THRESHOLD = np.zeros_like(TARGETS) 
+        #THRESHOLD = np.ones_like(TARGETS)
+        #THRESHOLD = [0, 1, 0]
+
 
         # optimizer constants
         WEIGHTS = [[0.5, 0.7, 0.78]]       # Update vector weights
@@ -59,6 +70,7 @@ class TestGraph():
 
         self.best_eval = 1
         parent = self                 # for passing debug back to the parent class
+        evaluate_threshold = True # use target or threshold. True = THRESHOLD, False = EXACT TARGET
         self.suppress_output = True   # Suppress the console output of particle swarm
         self.allow_update = True      # Allow objective call to update state 
 
@@ -75,9 +87,11 @@ class TestGraph():
 
         # optimizer initialization
         self.myOptimizer = swarm(LB, UB, TARGETS, TOL, MAXIT,
-                                func_F, constr_F,
-                                opt_df,
-                                parent=parent)  
+                            func_F, constr_F,
+                            opt_df,
+                            parent=parent, 
+                            evaluate_threshold=evaluate_threshold, obj_threshold=THRESHOLD)  
+
 
         # Matplotlib setup
         self.targets = TARGETS
