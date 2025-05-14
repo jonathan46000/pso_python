@@ -15,7 +15,7 @@ pso_python has been updated to increase modularity with the optimizer suite coll
     * [Time-step Adaptation](#time-step-adaptation)
     * [Constraint Handling](#constraint-handling)
     * [Boundary Types](#boundary-types)
-    * [Multi-Object Optimization](#multi-object-optimization)
+    * [Multi-Objective Optimization](#multi-objective-optimization)
     * [Objective Function Handling](#objective-function-handling)
       * [Creating a Custom Objective Function](#creating-a-custom-objective-function)
       * [Internal Objective Function Example](internal-objective-function-example)
@@ -183,7 +183,7 @@ This PSO optimizer has 4 different types of bounds, Random (Particles that leave
 
 Some updates have not incorporated appropriate handling for all boundary conditions. This bug is known and is being worked on. The most consistent boundary type at the moment is Random. If constraints are violated, but bounds are not, currently random bound rules are used to deal with this problem. 
 
-### Multi-Object Optimization
+### Multi-Objective Optimization
 The no preference method of multi-objective optimization, but a Pareto Front is not calculated. Instead, the best choice (smallest norm of output vectors) is listed as the output.
 
 ### Objective Function Handling
