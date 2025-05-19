@@ -1,4 +1,4 @@
-# pso_basic
+# pso_python
 
 Simple adaptive timestep particle swarm optimizer written in Python.  
 
