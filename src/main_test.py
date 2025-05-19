@@ -10,7 +10,7 @@
 #       for integration in the AntennaCAT GUI.
 #
 #   Author(s): Jonathan Lundquist, Lauren Linkous
-#   Last update: April 10, 2025
+#   Last update: May 18, 2025
 ##--------------------------------------------------------------------\
 
 import pandas as pd
@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     best_eval = 1
     parent = None             # for the optimizer test ONLY
-    evaluate_threshold = False # use target or threshold. True = THRESHOLD, False = EXACT TARGET
+    evaluate_threshold = True # use target or threshold. True = THRESHOLD, False = EXACT TARGET
     suppress_output = True    # Suppress the console output of particle swarm
     allow_update = True       # Allow objective call to update state 
 
