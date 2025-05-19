@@ -10,7 +10,7 @@
 #       
 #
 #   Author(s):  Lauren Linkous, Jonathan Lundquist
-#   Last update: April 10, 2025
+#   Last update: May 18, 2025
 ##--------------------------------------------------------------------\
 
 import numpy as np
@@ -61,7 +61,7 @@ class swarm:
         
 
         #unpack the opt_df standardized vals
-        NO_OF_PARTICLES = opt_df['NO_OF_PARTICLES'][0]
+        NO_OF_PARTICLES = int(opt_df['NO_OF_PARTICLES'][0])
         weights = opt_df['WEIGHTS'][0]
         boundary = opt_df['BOUNDARY'][0]
         vlimit = opt_df['VLIM'][0]
