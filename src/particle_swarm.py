@@ -360,9 +360,7 @@ class swarm:
         # Check if there is a risk, and use the max/min cap if needed
         
         # if enforcing decimal limit, no need to check floating point error handler anymore. 
-        self.delta_t = round(self.delta_t, self.number_decimals) #self.floating_point_error_handler("self.delta_t", self.delta_t)
-        #self.V[particle] = #self.floating_point_error_handler("self.V[particle] ", self.V[particle] )
-        
+        self.delta_t = round(self.delta_t, self.number_decimals) 
 
         self.M[particle] = np.round(self.M[particle] + self.delta_t*self.V[particle], self.number_decimals)
 
@@ -495,39 +493,6 @@ class swarm:
         abs_mean_dev = np.linalg.norm(np.mean(abs_data,axis=0))
         return abs_mean_dev
 
-
-    def floating_point_error_handler(self, varName, varValue):
-        # function added to handle floating point errors caused by user input variations
-        # longer than it has to be for explicit print out messages + modification
-
-        # buffer overflows happen when vlim, and the weights are all high
-        # buffer underflows happen when vlim, and the weights are all low
-        # other combinations may cause either issue, but these have been found experimentally
-
-        # constr_buffer.py or constr_F.py may be stricter depending on the function
-        # this is the limit for the optimizer, not the objective function.
-
-        # this function applies a max or min cap to the passed variable
-        capValue = varValue 
-
-        # max cap: 10e50
-        # min cap: -10e50
-        # max number of decimals: 30
-
-
-        if type(varValue) == np.ndarray: 
-            # have to cycle through each val in array
-            for idx in range(0, len(varValue)): 
-                v = varValue[idx]
-                rounded = round(v, 25)
-                clipped = np.clip(rounded, -10e50, 10e50)
-                capValue[idx] = 1.0*clipped # ensure copy and float
-        else:
-            rounded = round(varValue, 25)
-            clipped = np.clip(rounded, -10e50, 10e50)
-            capValue = 1.0*clipped # ensure copy and float
-
-        return capValue
 
     def debug_message_printout(self, msg):
         if self.parent == None:
