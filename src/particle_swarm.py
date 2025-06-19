@@ -11,7 +11,7 @@
 #       
 #
 #   Author(s): Jonathan Lundquist, Lauren Linkous
-#   Last update: March 12, 2025
+#   Last update: June 18, 2025
 ##--------------------------------------------------------------------\
 
 
@@ -26,7 +26,8 @@ class swarm:
     # func, func,
     # dataFrame,
     # class obj, 
-    # bool, [int, int, ...]) 
+    # bool, [int, int, ...], 
+    # int) 
     #  
     # opt_df contains class-specific tuning parameters
     # NO_OF_PARTICLES: int
@@ -39,10 +40,15 @@ class swarm:
                  obj_func, constr_func, 
                  opt_df,
                  parent=None, 
-                 evaluate_threshold=False, obj_threshold=None): 
+                 evaluate_threshold=False, obj_threshold=None,
+                 decimal_limit = 4): 
 
         # Optional parent class func call to write out values that trigger constraint issues
         self.parent = parent 
+
+        self.number_decimals = int(decimal_limit)  # limit the number of decimals
+                                              # used in cases where real life has limitations on resolution
+
 
         #evaluation method for targets
         # True: Evaluate as true targets
@@ -104,25 +110,31 @@ class swarm:
             self.ubound = ubound
             variation = ubound-lbound
 
-            self.M = np.array(np.multiply(self.rng.random((1,np.max([heightl, widthl]))), 
-                                                                variation)+lbound)    
+            raw = np.multiply(self.rng.random((1,np.max([heightl, widthl]))), variation)+lbound   
+            self.M = np.array([[round(val, self.number_decimals) for val in row] for row in raw])  
 
-            self.V = np.array(np.multiply(self.rng.random((1,np.max([heightl,widthl]))), 
-                                                                     vlimit))
+
+            raw = np.multiply(self.rng.random((1,np.max([heightl,widthl]))), vlimit)
+            self.V = np.array([[round(val, self.number_decimals) for val in row] for row in raw])
+
 
             for i in range(2,int(NO_OF_PARTICLES)+1):
-                
+
+                rawM = np.multiply(self.rng.random((1,np.max([heightl, widthl]))), variation)+lbound 
+                M = np.array([[round(val, self.number_decimals) for val in row] for row in rawM])  
+
+                rawV = np.multiply(self.rng.random((1,np.max([heightl,widthl]))), vlimit)
+                V = np.array([[round(val, self.number_decimals) for val in row] for row in rawV])
+
                 self.M = \
                     np.vstack([self.M, 
-                               np.multiply( self.rng.random((1,np.max([heightl, widthl]))), 
-                                                                               variation) 
-                                                                               + lbound])
+                               M])
 
                 self.V = \
                     np.vstack([self.V,
-                               np.multiply( self.rng.random((1,np.max([heightl, widthl]))), 
-                                                                               vlimit)])
-
+                               V])               
+ 
+ 
             '''
             self.M                      : An array of current particle locations.
             self.V                      : An array of current particle velocities.
@@ -263,9 +275,10 @@ class swarm:
     def update_velocity(self,particle):
         for i in range(0,np.shape(self.V)[1]):                      
             self.V[particle,i] = \
-                self.weights[0][0]* self.rng.random()*self.V[particle,i] \
+                round(self.weights[0][0]* self.rng.random()*self.V[particle,i] \
                 + self.weights[0][1]*self.rng.random()*(self.Pb[particle,i]-self.M[particle,i]) \
                 + self.weights[0][2]*self.rng.random()*(self.Gb[i]-self.M[particle,i])
+                , self.number_decimals)
             
     def check_bounds(self, particle):
         update = 0
@@ -282,12 +295,15 @@ class swarm:
         # and may cause a buffer overflow with large exponents (a bug that was found experimentally)
         update = self.check_bounds(particle) or not self.constr_func(self.M[particle])
         if update > 0:
-            while(self.check_bounds(particle)>0) or (self.constr_func(self.M[particle])==False): 
-                variation = self.ubound-self.lbound
-                self.M[particle] = \
-                    np.squeeze(self.rng.random() * 
-                                np.multiply(np.ones((1,np.shape(self.M)[1])),
-                                            variation) + self.lbound)
+            while (self.check_bounds(particle) > 0) or (self.constr_func(self.M[particle]) == False):
+                variation = self.ubound - self.lbound
+                self.M[particle] = np.round(
+                    np.squeeze(
+                        self.rng.random() *
+                        np.multiply(np.ones((1, np.shape(self.M)[1])), variation) +
+                        self.lbound
+                    ), self.number_decimals)
+                
             
     def reflecting_bound(self, particle):        
         update = self.check_bounds(particle)
@@ -342,10 +358,13 @@ class swarm:
 
         # For some input values, self.delta_t causes buffer over- or underflows
         # Check if there is a risk, and use the max/min cap if needed
-        self.delta_t = self.floating_point_error_handler("self.delta_t", self.delta_t)
-        self.V[particle] = self.floating_point_error_handler("self.V[particle] ", self.V[particle] )
         
-        self.M[particle] = self.M[particle] + self.delta_t*self.V[particle]
+        # if enforcing decimal limit, no need to check floating point error handler anymore. 
+        self.delta_t = round(self.delta_t, self.number_decimals) #self.floating_point_error_handler("self.delta_t", self.delta_t)
+        #self.V[particle] = #self.floating_point_error_handler("self.V[particle] ", self.V[particle] )
+        
+
+        self.M[particle] = np.round(self.M[particle] + self.delta_t*self.V[particle], self.number_decimals)
 
     def update_delta_t(self):
         self.delta_t = self.absolute_mean_deviation_of_particles()/(self.T_MOD*self.InitDeviation)
