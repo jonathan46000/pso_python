@@ -69,11 +69,11 @@ class swarm:
         
 
         #unpack the opt_df standardized vals
-        NO_OF_PARTICLES = opt_df['NO_OF_PARTICLES'][0]
-        weights = opt_df['WEIGHTS'][0]
-        boundary = opt_df['BOUNDARY'][0]
-        vlimit = opt_df['VLIM'][0]
-        T_MOD = opt_df['T_MOD'][0]
+        NO_OF_PARTICLES = int(opt_df['NO_OF_PARTICLES'][0])
+        weights = np.array(opt_df['WEIGHTS'][0])
+        boundary = int(opt_df['BOUNDARY'][0])
+        vlimit = np.array(opt_df['VLIM'][0])
+        T_MOD = float(opt_df['T_MOD'][0])
 
 
         heightl = np.shape(lbound)[0]
@@ -416,57 +416,97 @@ class swarm:
 
 
     def export_swarm(self):
-        swarm_export = {'lbound': self.lbound,
-                        'ubound': self.ubound,
-                        'targets': self.targets,
-                        'E_TOL': self.E_TOL,
-                        'maxit': self.maxit,                                                
-                        'M': self.M,
-                        'V': self.V,
-                        'output_size': self.output_size,
-                        'Gb': self.Gb,
-                        'F_Gb': self.F_Gb,
-                        'Pb': self.Pb,
-                        'F_Pb': self.F_Pb,
-                        'weights': self.weights,                        
-                        'iter': self.iter,
-                        'current_particle': self.current_particle,
-                        'number_of_particles': self.number_of_particles,
-                        'allow_update': self.allow_update,
-                        'Flist': self.Flist,
-                        'Fvals': self.Fvals,
-                        'Active': self.Active,
-                        'Boundary': self.boundary,
-                        'Mlast': self.Mlast,
-                        'vlimit': self.vlimit}
-        return swarm_export
+        #These do NOT export.
+        # # These are passed objects created at runtim
+        # self.parent # this is an object in memory at runtime
+        # self.surrogateOptimizer =  # this is an object in memory at runtime  
+        # self.obj_func =  # this is an object in memory at runtime                                             
+        # self.constr_func =  # this is an object in memory at runtime    
+        # self.useSurrogateModel = # this NEEDS to match every time. Should be part of the init() 
+        # self.number_decimals = # this can be changed. IT might be interesting to change between runs
+        # self.boundary = boundary     # int. can be chaged, but needs a default
+        # These export:
 
-    def import_swarm(self, swarm_export, obj_func, constr_func):
-        self.lbound = swarm_export['lbound'] 
-        self.ubound = swarm_export['ubound'] 
-        self.M = swarm_export['M'] 
-        self.V = swarm_export['V'] 
-        self.Gb = swarm_export['Gb'] 
-        self.F_Gb = swarm_export['F_Gb'] 
-        self.Pb = swarm_export['Pb'] 
-        self.F_Pb = swarm_export['F_Pb'] 
-        self.weights = swarm_export['weights'] 
-        self.targets = swarm_export['targets'] 
-        self.maxit = swarm_export['maxit'] 
-        self.E_TOL = swarm_export['E_TOL'] 
-        self.iter = swarm_export['iter'] 
-        self.current_particle = swarm_export['current_particle'] 
-        self.number_of_particles = swarm_export['number_of_particles'] 
-        self.allow_update = swarm_export['allow_update'] 
-        self.Flist = swarm_export['Flist'] 
-        self.Fvals = swarm_export['Fvals']
-        self.Active = swarm_export['Active']
-        self.boundary = swarm_export['Boundary']
-        self.Mlast = swarm_export['Mlast']
-        self.vlimit = swarm_export['vlimit']
-        self.output_size = swarm_export['output_size']
-        self.obj_func = obj_func 
-        self.constr_func = constr_func 
+
+        swarm_export = {            
+            # These are values that define the swarm and current solution space
+            # These are retained because the dimensionality of M, F_pb, etc. are strict
+            'evaluate_threshold': [self.evaluate_threshold],
+            'obj_threshold': [self.obj_threshold],
+            'targets': [self.targets],
+            'lbound': [self.lbound],
+            'ubound': [self.ubound],
+            'output_size': [self.output_size], # this can be calculated if needed
+            # convergence and step criteria
+            'maxit': [self.maxit],                                       
+            'E_TOL': [self.E_TOL],                                            
+            'iter': [self.iter],
+            'current_particle': [self.current_particle],    
+            'allow_update': [self.allow_update],
+            # optimizer specfic
+            'T_MOD': [self.T_MOD],
+            'init_deviation': [self.init_deviation],    
+            'delta_t': [self.delta_t],
+
+            # shared format vars for AntennaCAT set
+            'M': [self.M], 
+            'V': [self.V],
+            'Active': [self.Active],                    
+            'Gb': [self.Gb],
+            'F_Gb': [self.F_Gb],             
+            'Pb': [self.Pb],           
+            'F_Pb': [self.F_Pb],
+            'weights': [self.weights], 
+            'Flist': [self.Flist],                                                
+            'Fvals': [self.Fvals],
+            'vlimit': [self.vlimit],                                               
+            'Mlast': [self.Mlast]
+            } 
+        
+       
+        return swarm_export # this is turned into a dataframe in the driver class
+
+    def import_swarm(self, swarm_export):
+        # swarm export is a dataframe. this is unpacked and converted just like
+        # with the initialized opt_df params
+
+        # These are values that define the swarm and current solution space
+        # These are retained because the dimensionality of M, F_pb, etc. are strict
+        self.evaluate_threshold = bool(swarm_export['evaluate_threshold'][0]) 
+        self.obj_threshold = np.array(swarm_export['obj_threshold'][0]) 
+        self.targets = np.array(swarm_export['targets'][0]).reshape(-1, 1)   
+
+        self.lbound = np.array(swarm_export['lbound'][0]) 
+        self.ubound = np.array(swarm_export['ubound'][0]) 
+        self.output_size = int(swarm_export['output_size'][0])  # this can be calculated if needed
+        # convergence and step criteria
+        self.maxit = int(swarm_export['maxit'][0])                                              
+        self.E_TOL = float(swarm_export['E_TOL'][0])                                               
+        self.iter = int(swarm_export['iter'][0])     # NEED 'RESUME' and 'START OVER' options
+        self.current_particle = int(swarm_export['current_particle'][0])         
+        self.allow_update = int(swarm_export['allow_update'][0])    # BOOL as INT
+
+        # optimizer specfic
+        # NONE: this is the most stripped down optimizer in the set
+        self.T_MOD = float(swarm_export['T_MOD'][0])  
+        self.init_deviation = float(swarm_export['init_deviation'][0])  
+        self.delta_t = float(swarm_export['delta_t'][0]) 
+
+        # shared format vars for AntennaCAT set
+
+        self.M = np.array(swarm_export['M'][0]) 
+        self.V = np.array(swarm_export['V'][0])
+        self.Active = np.array(swarm_export['Active'][0])                    
+        self.Gb = np.array(swarm_export['Gb'][0]) 
+        self.F_Gb = np.array(swarm_export['F_Gb'][0])
+        self.Pb = np.array(swarm_export['Pb'][0])              
+        self.F_Pb = np.array(swarm_export['F_Pb'][0])  
+        self.weights = np.array(swarm_export['weights'][0])                
+        self.Flist = np.array(swarm_export['Flist'][0])                                                 
+        self.Fvals= np.array(swarm_export['Fvals'][0])
+        self.vlimit = np.array(swarm_export['vlimit'][0]) # used in initial setup                                               
+        self.Mlast= np.array(swarm_export['Mlast'][0])   
+
 
     def get_obj_inputs(self):
         return self.M[self.current_particle]
