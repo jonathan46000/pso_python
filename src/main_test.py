@@ -81,7 +81,8 @@ if __name__ == "__main__":
                             func_F, constr_F,
                             opt_df,
                             parent=parent, 
-                            evaluate_threshold=evaluate_threshold, obj_threshold=THRESHOLD)  
+                            evaluate_threshold=evaluate_threshold, obj_threshold=THRESHOLD,
+                            decimal_limit=5)  
 
     while not myOptimizer.complete():
         # step through optimizer processing
