@@ -28,13 +28,13 @@ pso_basic has been updated to increase modularity with the optimizer suite colle
 
 ## Particle Swarm Optimization
 
-Particle Swarm Optimization (PSO) is a popular nature-inspired optimization algorithm introduced in "Particle Swarm Optimization" [1] (J. Kennedy & R. Eberhart, 1995). It is inspired by the social behavior animal groups, often compared to birds flocking or fish schooling. PSO is used to find approximate solutions to complex optimization problems.
+Particle Swarm Optimization (PSO) is a popular nature-inspired optimization algorithm introduced in "Particle Swarm Optimization" [1] (J. Kennedy & R. Eberhart, 1995). It is inspired by the social behavior of animal groups, often compared to birds flocking or fish schooling. PSO is used to find approximate solutions to complex optimization problems.
 
 PSO consists of a population (or swarm) of candidate solutions called particles. Each particle moves through the search space, influenced by its own best-known position and the best-known positions of the swarm. The algorithm combines exploration and exploitation to find the optimal solution.
 
 ## Requirements
 
-This project requires numpy, pandas, and matplotlib for the full demos. To run the optimizer without visualization, only numpy and pandas are requirements
+This project requires numpy, pandas, and matplotlib for the full demos. To run the optimizer without visualization, only numpy and pandas are requirements.
 
 Use 'pip install -r requirements.txt' to install the following dependencies:
 
@@ -119,7 +119,6 @@ This is an example for if you've had a difficult time with the requirements.txt 
                             evaluate_threshold=evaluate_threshold, obj_threshold=THRESHOLD,
                             decimal_limit = 4)  
 
-
     # arguments should take the form: 
     # swarm([[float, float, ...]], [[float, float, ...]], [[float, ...]], float, int,
     # func, func,
@@ -183,7 +182,6 @@ Some optimizer information can be exported or imported. This varies based on eac
 
 Optimizer state can be exported at any step. When importing an optimizer state, the optimizer should be initialized first, and then the state information can be imported via a Python pickle file. Other methods can be used if custom code is written to handle preprocessing.
 
-
 Returning data from optimizer and saving to a .pkl file:
 ```python
     data = demo_optimizer.export_swarm()
@@ -193,14 +191,12 @@ Returning data from optimizer and saving to a .pkl file:
 
 ```
 
-
 Importing data from a .pkl file and importing it into the optimizer:
 ```python
     data_df = pd.read_pickle('output_data_df.pkl') 
     demo_optimizer.import_swarm(data_df)
 
 ```
-
 
 ### Constraint Handling
 Users must create their own constraint function for their problems, if there are constraints beyond the problem bounds.  This is then passed into the constructor. If the default constraint function is used, it always returns true (which means there are no constraints).
@@ -217,13 +213,11 @@ The no preference method of multi-objective optimization, but a Pareto Front is 
 
 The objective function is handled in two parts. 
 
-
 * First, a defined function, such as one passed in from `func_F.py` (see examples), is evaluated based on current particle locations. This allows for the optimizers to be utilized in the context of 1. benchmark functions from the objective function library, 2. user defined functions, 3. replacing explicitly defined functions with outside calls to programs such as simulations or other scripts that return a matrix of evaluated outputs. 
 
 * Secondly, the actual objective function is evaluated. In the AntennaCAT set of optimizers, the objective function evaluation is either a `TARGET` or `THRESHOLD` evaluation. For a `TARGET` evaluation, which is the default behavior, the optimizer minimizes the absolute value of the difference of the target outputs and the evaluated outputs. A `THRESHOLD` evaluation includes boolean logic to determine if a 'greater than or equal to' or 'less than or equal to' or 'equal to' relation between the target outputs (or thresholds) and the evaluated outputs exist. 
 
 Future versions may include options for function minimization when target values are absent. 
-
 
 
 #### Creating a Custom Objective Function
@@ -292,7 +286,6 @@ def func_F(X, NO_OF_OUTS=1):
 
     return [F], noErrors
 ```
-
 
 #### Internal Objective Function Example
 
@@ -392,7 +385,6 @@ Where `self.Fvals` is a re-arranged and error checked returned value from the pa
 When using a THRESHOLD, the `Flist` value corresponding to the target is set to epsilon (the smallest system value) if the evaluated `func_F` value meets the threshold condition for that target item. If the threshold is not met, the absolute value of the difference of the target output and the evaluated output is used. With a THRESHOLD configuration, each value in the numpy array is evaluated individually, so some values can be 'greater than or equal to' the target while others are 'equal' or 'less than or equal to' the target. 
 
 
-
 ## Example Implementations
 
 ### Basic PSO Example
@@ -421,4 +413,5 @@ This software works as a stand-alone implementation, and as one of the optimizer
 ## Licensing
 
 The code in this repository has been released under GPL-2.0
+
 

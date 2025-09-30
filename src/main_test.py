@@ -27,7 +27,6 @@ import lundquist_3_var.configs_F as func_configs     # multi objective function
 if __name__ == "__main__":
     # Constant variables
     NO_OF_PARTICLES = 11         # Number of particles in swarm
-    T_MOD = 0.65                 # Variable time-step extinction coefficient
     TOL = 10 ** -18              # Convergence Tolerance
     MAXIT = 10000                # Maximum allowed iterations
     BOUNDARY = 1                 # int boundary 1 = random,      2 = reflecting
@@ -66,13 +65,13 @@ if __name__ == "__main__":
     allow_update = True       # Allow objective call to update state 
 
 
+
     # Constant variables in a list format
     opt_params = {'NO_OF_PARTICLES': [NO_OF_PARTICLES], # Number of particles in swarm
-                'T_MOD': [T_MOD],                       # Variable time-step extinction coefficient
                 'BOUNDARY': [BOUNDARY],                 # int boundary 1 = random,      2 = reflecting
-                                                        #              3 = absorbing,   4 = invisible
+                                                        #   3 = absorbing,   4 = invisible
                 'WEIGHTS': [WEIGHTS],                   # Update vector weights
-                'VLIM':  [VLIM] }     
+                'VLIM':  [VLIM] }                       # Initial velocity limit 
     # dataframe conversion
     opt_df = pd.DataFrame(opt_params)
 
