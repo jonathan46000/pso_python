@@ -11,7 +11,7 @@
 #       
 #
 #   Author(s): Jonathan Lundquist, Lauren Linkous
-#   Last update: June 18, 2025
+#   Last update: June 6, 2026
 ##--------------------------------------------------------------------\
 
 
@@ -230,9 +230,9 @@ class swarm:
         if self.evaluate_threshold == True: #THRESHOLD
             ctr = 0
             for i in targets:
-                o_thres = int(self.obj_threshold[ctr]) #force type as err check
-                t = targets[ctr]
-                fv = Fvals[ctr]
+                o_thres = int(self.obj_threshold[ctr].item()) #force type as err check (NumPy 2 safe)
+                t = targets[ctr].item()
+                fv = Fvals[ctr].item()
 
                 if o_thres == 0: #TARGET. default
                     # sets Flist[ctr] as abs distance of  Fvals[ctr] from target
@@ -445,7 +445,7 @@ class swarm:
             'allow_update': [self.allow_update],
             # optimizer specfic
             'T_MOD': [self.T_MOD],
-            'init_deviation': [self.init_deviation],    
+            'InitDeviation': [self.InitDeviation],    
             'delta_t': [self.delta_t],
 
             # shared format vars for AntennaCAT set
@@ -489,7 +489,7 @@ class swarm:
         # optimizer specfic
         # NONE: this is the most stripped down optimizer in the set
         self.T_MOD = float(swarm_export['T_MOD'][0])  
-        self.init_deviation = float(swarm_export['init_deviation'][0])  
+        self.InitDeviation = float(swarm_export['InitDeviation'][0])  
         self.delta_t = float(swarm_export['delta_t'][0]) 
 
         # shared format vars for AntennaCAT set
